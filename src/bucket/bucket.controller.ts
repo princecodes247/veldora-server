@@ -42,8 +42,11 @@ export class BucketController {
   }
 
   @Post(':id/submit')
-  submit(@Body() createBucketDto: CreateBucketDto) {
-    return this.bucketService.create(createBucketDto);
+  submit(@Param('id') formId: string, @Body() submissionData: any) {
+    return this.bucketService.submit({
+      bucket: formId,
+      data: submissionData,
+    });
   }
 
   @Delete(':id')

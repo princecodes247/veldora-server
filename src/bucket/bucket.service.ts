@@ -1,3 +1,4 @@
+import { CreateSubmissionDto } from './../submission/dto/create-submission.dto';
 import { Injectable } from '@nestjs/common';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
@@ -19,8 +20,11 @@ export class BucketService {
     return await bucket.save();
   }
 
-  async submit(createBucketDto: CreateBucketDto) {
-    const submission = await this.submissionService.create(createBucketDto);
+  async submit({ bucket, data }: { bucket: string; data: string }) {
+    const submission = await this.submissionService.create({
+      bucket,
+      data,
+    });
     return submission;
   }
 

@@ -1,1 +1,4 @@
-export class CreateSubmissionDto {}
+export class CreateSubmissionDto {
+  bucket: string;
+  data: any;
+}
