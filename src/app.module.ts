@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { BucketModule } from './bucket/bucket.module';
+import { SubmissionModule } from './submission/submission.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { BucketModule } from './bucket/bucket.module';
     UserModule,
     AuthModule,
     BucketModule,
+    SubmissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,11 +7,15 @@ import {
   HttpStatus,
   Post,
   UseInterceptors,
+  Version,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SigninRequestDto, SigninResponseDto } from './dto/signin.dto';
 
-@Controller('auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(private authService: AuthService) {}
 

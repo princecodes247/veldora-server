@@ -1,9 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  Request,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { GetUserDto } from './dto/get-user.dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -13,13 +29,27 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.userService.findAll(pagination);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async findUserProfile(@Request() req): Promise<GetUserDto> {
+    try {
+      const user = await this.userService.findOne(req.user.sub);
+      if (!user) {
+        throw new HttpException('Could not find user', HttpStatus.NOT_FOUND);
+      }
+      return user;
+    } catch (error) {
+      throw new HttpException('Could not find user', HttpStatus.NOT_FOUND);
+    }
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+    return this.userService.findOne(id);
   }
 
   @Patch(':id')

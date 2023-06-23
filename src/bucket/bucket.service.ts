@@ -1,19 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Bucket, BucketDocument } from './schemas/bucket.schema';
+import { PaginationDto } from './dto/pagination.dto';
+import { SubmissionService } from 'src/submission/submission.service';
 
 @Injectable()
 export class BucketService {
-  create(createBucketDto: CreateBucketDto) {
-    return 'This action adds a new bucket';
+  constructor(
+    private submissionService: SubmissionService,
+    @InjectModel(Bucket.name) private bucketModel: Model<Bucket>,
+  ) {}
+
+  async create(createBucketDto: CreateBucketDto) {
+    const bucket = new this.bucketModel(createBucketDto);
+    return await bucket.save();
   }
 
-  findAll() {
-    return `This action returns all bucket`;
+  async submit(createBucketDto: CreateBucketDto) {
+    const submission = await this.submissionService.create(createBucketDto);
+    return submission;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bucket`;
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<{ data: BucketDocument[]; total: number }> {
+    const { page, limit = 1 } = pagination;
+    const skip = page ? (page - 1) * limit : 0;
+    const total = await this.bucketModel.countDocuments();
+    const buckets = await this.bucketModel.find().skip(skip).limit(limit);
+    return { data: buckets, total };
+  }
+
+  async findOne(id: string): Promise<BucketDocument> {
+    try {
+      const bucket = await this.bucketModel.findById(id);
+      if (!bucket) {
+        throw new Error('Bucket not found');
+      }
+      return bucket.toObject();
+    } catch (err) {
+      throw new Error('Bucket not found');
+    }
   }
 
   update(id: number, updateBucketDto: UpdateBucketDto) {

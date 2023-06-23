@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 
-@Controller('bucket')
+@Controller({
+  path: 'buckets',
+  version: '1',
+})
 export class BucketController {
   constructor(private readonly bucketService: BucketService) {}
 
@@ -14,17 +25,25 @@ export class BucketController {
 
   @Get()
   findAll() {
-    return this.bucketService.findAll();
+    return this.bucketService.findAll({
+      page: 1,
+      limit: 10,
+    });
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.bucketService.findOne(+id);
+    return this.bucketService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBucketDto: UpdateBucketDto) {
     return this.bucketService.update(+id, updateBucketDto);
+  }
+
+  @Post(':id/submit')
+  submit(@Body() createBucketDto: CreateBucketDto) {
+    return this.bucketService.create(createBucketDto);
   }
 
   @Delete(':id')
