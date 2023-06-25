@@ -5,7 +5,7 @@ import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Bucket, BucketDocument } from './schemas/bucket.schema';
-import { PaginationDto } from './dto/pagination.dto';
+import { PaginationDto, PaginationResult } from './dto/pagination.dto';
 import { SubmissionService } from 'src/submission/submission.service';
 
 @Injectable()
@@ -30,7 +30,7 @@ export class BucketService {
 
   async findAll(
     pagination: PaginationDto,
-  ): Promise<{ data: BucketDocument[]; total: number }> {
+  ): Promise<PaginationResult<BucketDocument>> {
     const { page, limit = 1 } = pagination;
     const skip = page ? (page - 1) * limit : 0;
     const total = await this.bucketModel.countDocuments();
@@ -63,7 +63,21 @@ export class BucketService {
       }
     ]);
     
-    return { data: buckets, total };
+    const totalPages = Math.ceil(total / limit);
+
+  const meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+  } = {
+    total,
+    page,
+    limit,
+    totalPages,
+  };
+
+  return { data: buckets, meta };
   }
 
   async findOne(id: string): Promise<BucketDocument> {
