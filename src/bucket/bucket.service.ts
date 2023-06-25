@@ -34,7 +34,35 @@ export class BucketService {
     const { page, limit = 1 } = pagination;
     const skip = page ? (page - 1) * limit : 0;
     const total = await this.bucketModel.countDocuments();
-    const buckets = await this.bucketModel.find().skip(skip).limit(limit);
+    const buckets = await this.bucketModel.aggregate([
+      {
+        $skip: skip
+      },
+      {
+        $limit: limit
+      },
+      {
+        $lookup: {
+          from: 'submissions',
+          let: { bucketId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: [
+                { $toObjectId: '$bucket' }, '$$bucketId'] }
+              }
+            }
+          ],
+          as: 'submissionsCount'
+        }
+      },
+      {
+        $addFields: {
+          submissionsCount: { $size: '$submissionsCount' }
+        }
+      }
+    ]);
+    
     return { data: buckets, total };
   }
 

@@ -20,7 +20,7 @@ export class BucketController {
 
   @Post()
   create(@Body() createBucketDto: CreateBucketDto) {
-    return this.bucketService.create(createBucketDto);
+    return this.bucketService.create({...createBucketDto, owner: "64957e98d09d2b829fb2955c"});
   }
 
   @Get()
@@ -32,8 +32,11 @@ export class BucketController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bucketService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const bucket = await this.bucketService.findOne(id);
+    return {
+      data: bucket
+    }
   }
 
   @Patch(':id')

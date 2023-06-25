@@ -9,7 +9,7 @@ export class Submission {
   submissionTime: Date;
 
   @Prop({ type: Types.ObjectId, ref: 'Bucket', required: true })
-  bucket: string;
+  bucket: Types.ObjectId;
 
   @Prop({ type: mongoose.Schema.Types.Mixed, required: true })
   data: any;
