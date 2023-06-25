@@ -7,13 +7,20 @@ import { AuthModule } from './auth/auth.module';
 import { BucketModule } from './bucket/bucket.module';
 import { SubmissionModule } from './submission/submission.module';
 import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://127.0.0.1/veldora'),
+    MongooseModule.forRootAsync({
+      // imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
+    }),
     UserModule,
     AuthModule,
     BucketModule,
