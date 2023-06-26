@@ -70,9 +70,13 @@ export class BucketController {
     @Request() req,
     @Response() res,
   ): Promise<void> {
-    const { country, device } = this.extractDeviceInfo(req);
-    // await this.bucketService.addViewToBucket(bucketId);
-    console.log({ country, device });
+    const { device, ip, platform } = this.extractDeviceInfo(req);
+    console.log({ device, ip, platform });
+    await this.bucketService.addViewToBucket(bucketId, {
+      device,
+      ip,
+      platform,
+    });
     res.set('Content-Type', 'image/png');
     res.send(
       Buffer.from(
@@ -96,27 +100,19 @@ export class BucketController {
   }
 
   private extractDeviceInfo(@Request() req): {
-    country: string;
+    ip: string;
     device: string;
+    platform: string;
   } {
     // Retrieve the device and country information from the request, for example:
     const device =
       req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
-    const country = req.header('X-Country') || 'Unknown Country';
-    const ip2 = req.connection.remoteAddress;
-    const ip = req.ip || 'Unknown IP';
+    const ip = req.header('true-client-ip') || 'Unknown IP';
 
     // const uaParser = new UAParser(device);
     const platform = this.parsePlatform(device);
-    console.log({
-      headers: req.headers,
-      device,
-      country,
-      ip,
-      platform,
-      ip2,
-    });
-    return { country, device };
+
+    return { platform, ip, device };
   }
 
   private parsePlatform(userAgent: string): string {

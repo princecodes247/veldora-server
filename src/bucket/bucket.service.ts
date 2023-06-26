@@ -1,5 +1,5 @@
 import { CreateSubmissionDto } from './../submission/dto/create-submission.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,11 +8,16 @@ import { Bucket, BucketDocument } from './schemas/bucket.schema';
 import { PaginationDto, PaginationResult } from './dto/pagination.dto';
 import { SubmissionService } from 'src/submission/submission.service';
 import { AnalyticsData } from 'src/interfaces';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class BucketService {
+  private readonly logger = new Logger(BucketService.name);
   constructor(
     private submissionService: SubmissionService,
+    private readonly httpService: HttpService,
     @InjectModel(Bucket.name) private bucketModel: Model<Bucket>,
   ) {}
 
@@ -161,12 +166,28 @@ export class BucketService {
     }
   }
 
-  async addViewToBucket(bucketId: string): Promise<void> {
-    await this.bucketModel
-      .findByIdAndUpdate(bucketId, {
-        $push: { views: { country: 'Country', device: 'Device' } },
-      })
-      .exec();
+  async addViewToBucket(
+    bucketId: string,
+    data: {
+      ip: string;
+      device: string;
+      platform: string;
+    },
+  ): Promise<void> {
+    const { data: result } = await firstValueFrom(
+      this.httpService.get('https://api.iplocation.net/?ip=' + data.ip).pipe(
+        catchError((error: AxiosError) => {
+          this.logger.error(error.response.data);
+          throw 'An error happened!';
+        }),
+      ),
+    );
+    console.log({ result });
+    // await this.bucketModel
+    //   .findByIdAndUpdate(bucketId, {
+    //     $push: { views: { country: 'Country', device: 'Device' } },
+    //   })
+    //   .exec();
   }
 
   update(id: number, updateBucketDto: UpdateBucketDto) {
