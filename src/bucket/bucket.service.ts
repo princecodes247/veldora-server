@@ -174,12 +174,18 @@ export class BucketService {
       platform: string;
     },
   ): Promise<void> {
+    const bucket = await this.bucketModel.findById(bucketId).exec();
+
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+
     const { data: result } = await firstValueFrom(
       this.httpService
         .get<{
           ip: string;
           ip_number: string;
-          ip_version: 4;
+          ip_version: number;
           country_name: string;
           country_code2: string;
           isp: string;
