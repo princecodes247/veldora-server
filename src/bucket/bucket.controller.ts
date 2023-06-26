@@ -104,11 +104,32 @@ export class BucketController {
       req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
     const country = req.header('X-Country') || 'Unknown Country';
     const ip = req.ip || 'Unknown IP';
+    // const uaParser = new UAParser(device);
+    const platform = this.parsePlatform(device);
     console.log({
       device,
       country,
       ip,
+      platform,
     });
     return { country, device };
+  }
+
+  private parsePlatform(userAgent: string): string {
+    let platform = 'Unknown Platform';
+
+    if (userAgent.includes('Windows')) {
+      platform = 'Windows';
+    } else if (userAgent.includes('Macintosh')) {
+      platform = 'Macintosh';
+    } else if (userAgent.includes('Linux')) {
+      platform = 'Linux';
+    } else if (userAgent.includes('Android')) {
+      platform = 'Android';
+    } else if (userAgent.includes('iOS')) {
+      platform = 'iOS';
+    }
+
+    return platform;
   }
 }
