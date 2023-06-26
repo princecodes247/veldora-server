@@ -175,19 +175,39 @@ export class BucketService {
     },
   ): Promise<void> {
     const { data: result } = await firstValueFrom(
-      this.httpService.get('https://api.iplocation.net/?ip=' + data.ip).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error(error.response.data);
-          throw 'An error happened!';
-        }),
-      ),
+      this.httpService
+        .get<{
+          ip: string;
+          ip_number: string;
+          ip_version: 4;
+          country_name: string;
+          country_code2: string;
+          isp: string;
+          response_code: '200';
+          response_message: string;
+        }>('https://api.iplocation.net/?ip=' + data.ip)
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
     );
-    console.log({ result });
-    // await this.bucketModel
-    //   .findByIdAndUpdate(bucketId, {
-    //     $push: { views: { country: 'Country', device: 'Device' } },
-    //   })
-    //   .exec();
+    // console.log({ result });
+    await this.bucketModel
+      .findByIdAndUpdate(bucketId, {
+        $push: {
+          views: {
+            country: result.country_name,
+            countryCode: result.country_code2,
+            isp: result.isp,
+            ip: data.ip,
+            device: data.device,
+            platform: data.platform,
+          },
+        },
+      })
+      .exec();
   }
 
   update(id: number, updateBucketDto: UpdateBucketDto) {

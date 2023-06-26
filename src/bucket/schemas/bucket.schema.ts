@@ -8,10 +8,26 @@ export class Bucket {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ default: [], type: [{ country: String, device: String }] })
+  @Prop({
+    default: [],
+    type: [
+      {
+        country: String,
+        device: String,
+        countryCode: String,
+        isp: String,
+        ip: String,
+        platform: String,
+      },
+    ],
+  })
   views: Array<{
     country: string;
     device: string;
+    countryCode: string;
+    isp: string;
+    ip: string;
+    platform: string;
   }>;
 
   @Prop({ required: true })
