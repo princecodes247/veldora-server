@@ -8,10 +8,14 @@ import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './auth.constant';
 import { Request } from 'express';
+import { PassageService } from 'src/passage/passage.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private passageService: PassageService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -20,12 +24,18 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
-      });
+      console.log({ token });
+      const userID = await this.passageService.authenticate(token);
+      console.log({ userID });
+      if (!userID) {
+        throw new UnauthorizedException();
+      }
+      // user is authenticated
+      const { email, phone } = await this.passageService.get(userID);
+      const identifier = email ? email : phone;
+      request['user'] = { userID, email, phone };
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
-      request['user'] = payload;
     } catch {
       throw new UnauthorizedException();
     }

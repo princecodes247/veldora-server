@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Request,
   UseInterceptors,
   Version,
 } from '@nestjs/common';
@@ -42,6 +43,13 @@ export class AuthController {
   @Post('register')
   async signUp(@Body() signUpDto: CreateUserDto) {
     const user = await this.authService.signUp(signUpDto);
+    return user;
+  }
+
+  
+  @Post('verify')
+  async verifyAuth(@Request() req) {
+    const user = await this.authService.verifyAuth(req);
     return user;
   }
 }

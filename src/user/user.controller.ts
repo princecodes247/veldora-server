@@ -37,7 +37,8 @@ export class UserController {
   @UseGuards(AuthGuard)
   async findUserProfile(@Request() req): Promise<GetUserDto> {
     try {
-      const user = await this.userService.findOne(req.user.sub);
+      console.log({ requser: req.user });
+      const user = req.user;
       if (!user) {
         throw new HttpException('Could not find user', HttpStatus.NOT_FOUND);
       }

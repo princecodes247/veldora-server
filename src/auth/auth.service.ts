@@ -5,16 +5,19 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserDocument } from '../user/schemas/user.schema';
+import { PassageService } from 'src/passage/passage.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private passageService: PassageService,
   ) {}
 
   generateToken(user: UserDocument) {
@@ -54,5 +57,21 @@ export class AuthService {
     const { password: pass, ...result } = user.toObject();
 
     return { ...result, ...this.generateToken(user) };
+  }
+
+  async verifyAuth(req) {
+    try {
+      const userID = await this.passageService.authenticateRequest(req);
+      if (userID) {
+        // user is authenticated
+        const { email, phone } = await this.passageService.get(userID);
+        const identifier = email ? email : phone;
+
+        return identifier;
+      }
+    } catch (e) {
+      // authentication failed
+      console.log(e);
+    }
   }
 }

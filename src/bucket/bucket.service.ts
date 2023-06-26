@@ -36,10 +36,10 @@ export class BucketService {
     const total = await this.bucketModel.countDocuments();
     const buckets = await this.bucketModel.aggregate([
       {
-        $skip: skip
+        $skip: skip,
       },
       {
-        $limit: limit
+        $limit: limit,
       },
       {
         $lookup: {
@@ -48,36 +48,92 @@ export class BucketService {
           pipeline: [
             {
               $match: {
-                $expr: { $eq: [
-                { $toObjectId: '$bucket' }, '$$bucketId'] }
-              }
-            }
+                $expr: { $eq: [{ $toObjectId: '$bucket' }, '$$bucketId'] },
+              },
+            },
           ],
-          as: 'submissionsCount'
-        }
+          as: 'submissionsCount',
+        },
       },
       {
         $addFields: {
-          submissionsCount: { $size: '$submissionsCount' }
-        }
-      }
+          submissionsCount: { $size: '$submissionsCount' },
+        },
+      },
     ]);
-    
+
     const totalPages = Math.ceil(total / limit);
 
-  const meta: {
+    const meta: {
       total: number;
       page: number;
       limit: number;
       totalPages: number;
-  } = {
-    total,
-    page,
-    limit,
-    totalPages,
-  };
+    } = {
+      total,
+      page,
+      limit,
+      totalPages,
+    };
 
-  return { data: buckets, meta };
+    return { data: buckets, meta };
+  }
+
+  async findAllUserBuckets(
+    pagination: PaginationDto,
+    owner: string,
+  ): Promise<PaginationResult<BucketDocument>> {
+    const { page, limit = 1 } = pagination;
+    const skip = page ? (page - 1) * limit : 0;
+    const total = await this.bucketModel.countDocuments();
+    const buckets = await this.bucketModel.aggregate([
+      {
+        $match: {
+          owner,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $lookup: {
+          from: 'submissions',
+          let: { bucketId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: [{ $toObjectId: '$bucket' }, '$$bucketId'] },
+              },
+            },
+          ],
+          as: 'submissionsCount',
+        },
+      },
+      {
+        $addFields: {
+          submissionsCount: { $size: '$submissionsCount' },
+        },
+      },
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    const meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    } = {
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+
+    return { data: buckets, meta };
   }
 
   async findOne(id: string): Promise<BucketDocument> {
