@@ -103,14 +103,18 @@ export class BucketController {
     const device =
       req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
     const country = req.header('X-Country') || 'Unknown Country';
+    const ip2 = req.connection.remoteAddress;
     const ip = req.ip || 'Unknown IP';
+
     // const uaParser = new UAParser(device);
     const platform = this.parsePlatform(device);
     console.log({
+      headers: req.headers,
       device,
       country,
       ip,
       platform,
+      ip2,
     });
     return { country, device };
   }
