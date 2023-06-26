@@ -3,10 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FlatRecord, Model } from 'mongoose';
 import { Bucket, BucketDocument } from './schemas/bucket.schema';
 import { PaginationDto, PaginationResult } from './dto/pagination.dto';
 import { SubmissionService } from 'src/submission/submission.service';
+import { AnalyticsData } from 'src/interfaces';
 
 @Injectable()
 export class BucketService {
@@ -136,16 +137,36 @@ export class BucketService {
     return { data: buckets, meta };
   }
 
-  async findOne(id: string): Promise<BucketDocument> {
+  async findOne(id: string): Promise<Bucket & { stats: AnalyticsData }> {
     try {
-      const bucket = await this.bucketModel.findById(id);
+      const bucket = await this.bucketModel.findById(id).lean();
+      // .populate('submissions')
+
+      console.log({ bucket });
+
       if (!bucket) {
         throw new Error('Bucket not found');
       }
-      return bucket.toObject();
+
+      const stats = await this.submissionService.getBucketStats(
+        bucket._id.toString(),
+      );
+
+      return {
+        ...bucket,
+        stats,
+      };
     } catch (err) {
       throw new Error('Bucket not found');
     }
+  }
+
+  async addViewToBucket(bucketId: string): Promise<void> {
+    await this.bucketModel
+      .findByIdAndUpdate(bucketId, {
+        $push: { views: { country: 'Country', device: 'Device' } },
+      })
+      .exec();
   }
 
   update(id: number, updateBucketDto: UpdateBucketDto) {

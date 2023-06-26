@@ -13,6 +13,15 @@ export class Submission {
 
   @Prop({ type: mongoose.Schema.Types.Mixed, required: true })
   data: any;
+
+  @Prop({ type: mongoose.Schema.Types.Mixed, default: {
+    country: "",
+    device: ""
+  } })
+  meta: {
+    country: String,
+    device: String
+  }
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

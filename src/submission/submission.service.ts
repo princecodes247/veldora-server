@@ -1,10 +1,11 @@
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { Submission, SubmissionDocument } from './schemas/submission.schema';
 import { PaginationCursorDto, PaginationDto } from './dto/pagination.dto';
+import { AnalyticsData } from 'src/interfaces';
 
 @Injectable()
 export class SubmissionService {
@@ -16,32 +17,6 @@ export class SubmissionService {
     return new this.submissionModel(createSubmissionDto).save();
   }
 
-  // async findAll(limit: number, cursor?: string): Promise<any> {
-  //   const query = {};
-  //   if (cursor) {
-  //     query['_id'] = { $lt: cursor };
-  //   }
-
-  //   const submissions = await this.submissionModel
-  //     .find(query)
-  //     .sort({ _id: -1 })
-  //     .limit(limit)
-  //     .lean();
-
-  //   const hasNextPage = submissions.length > limit;
-  //   const edges = submissions.slice(0, limit).map((submission) => ({
-  //     cursor: submission._id.toString(),
-  //     node: submission,
-  //   }));
-
-  //   return {
-  //     pageInfo: {
-  //       hasNextPage,
-  //       endCursor: hasNextPage ? edges[edges.length - 1].cursor : null,
-  //     },
-  //     edges,
-  //   };
-  // }
 
   async findAll({
     limit = 10,
@@ -79,6 +54,35 @@ export class SubmissionService {
         endCursor: hasNextPage ? edges[edges.length - 1].cursor : null,
       },
     };
+  }
+
+  async getBucketStats(bucketId: string ): Promise<AnalyticsData> {
+    const submissionStats = await this.submissionModel.aggregate([
+      { $match: { bucket: bucketId } },
+      {
+        $facet: {
+          submissionCount: [{ $count: 'count' }],
+          countries: [
+            { $group: { _id: '$meta.country', count: { $sum: 1 } } },
+            { $match: { _id: { $ne: null } } },
+            { $project: { name: '$_id', count: 1, _id: 0 } },
+          ],
+          devices: [
+            { $group: { _id: '$meta.device', count: { $sum: 1 } } },
+            { $match: { _id: { $ne: null } } },
+            { $project: { name: '$_id', count: 1, _id: 0 } },
+          ],
+        },
+      },
+      {
+        $project: {
+          submissionCount: { $arrayElemAt: ['$submissionCount.count', 0] },
+          countries: 1,
+          devices: 1,
+        },
+      },
+    ]);
+    return submissionStats[0];
   }
 
   findOne(id: number) {

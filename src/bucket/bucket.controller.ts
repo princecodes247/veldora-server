@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Request,
+  Response,
 } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { CreateBucketDto } from './dto/create-bucket.dto';
@@ -63,6 +64,24 @@ export class BucketController {
     return this.bucketService.update(+id, updateBucketDto);
   }
 
+  @Get(':bucketId/view')
+  async viewBucket(
+    @Param('bucketId') bucketId: string,
+    @Request() req,
+    @Response() res,
+  ): Promise<void> {
+    const { country, device } = this.extractDeviceInfo(req);
+    // await this.bucketService.addViewToBucket(bucketId);
+    console.log({ country, device });
+    res.set('Content-Type', 'image/png');
+    res.send(
+      Buffer.from(
+        'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+        'base64',
+      ),
+    );
+  }
+
   @Post(':id/submit')
   submit(@Param('id') formId: string, @Body() submissionData: any) {
     return this.bucketService.submit({
@@ -74,5 +93,22 @@ export class BucketController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.bucketService.remove(+id);
+  }
+
+  private extractDeviceInfo(@Request() req): {
+    country: string;
+    device: string;
+  } {
+    // Retrieve the device and country information from the request, for example:
+    const device =
+      req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
+    const country = req.header('X-Country') || 'Unknown Country';
+    const ip = req.ip || 'Unknown IP';
+    console.log({
+      device,
+      country,
+      ip,
+    });
+    return { country, device };
   }
 }
