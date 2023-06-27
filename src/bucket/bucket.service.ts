@@ -221,7 +221,7 @@ export class BucketService {
     return `This action updates a #${id} bucket`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} bucket`;
+  remove(id: string) {
+    return this.bucketModel.findByIdAndDelete(id).exec();
   }
 }

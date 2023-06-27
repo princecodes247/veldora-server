@@ -9,6 +9,8 @@ import {
   UseGuards,
   Request,
   Response,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { CreateBucketDto } from './dto/create-bucket.dto';
@@ -53,10 +55,23 @@ export class BucketController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const bucket = await this.bucketService.findOne(id);
-    return {
-      data: bucket,
-    };
+    try {
+      const bucket = await this.bucketService.findOne(id);
+      return {
+        data: bucket,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Bucket not found',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
   }
 
   @Patch(':id')
@@ -70,33 +85,59 @@ export class BucketController {
     @Request() req,
     @Response() res,
   ): Promise<void> {
-    const { device, ip, platform } = this.extractDeviceInfo(req);
-    console.log({ device, ip, platform });
-    await this.bucketService.addViewToBucket(bucketId, {
-      device,
-      ip,
-      platform,
-    });
-    res.set('Content-Type', 'image/png');
-    res.send(
-      Buffer.from(
-        'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-        'base64',
-      ),
-    );
+    try {
+      const { device, ip, platform } = this.extractDeviceInfo(req);
+      console.log({ device, ip, platform });
+      await this.bucketService.addViewToBucket(bucketId, {
+        device,
+        ip,
+        platform,
+      });
+      res.set('Content-Type', 'image/png');
+      res.send(
+        Buffer.from(
+          'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+          'base64',
+        ),
+      );
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.SERVICE_UNAVAILABLE,
+          error: 'Unable to get image',
+        },
+        HttpStatus.SERVICE_UNAVAILABLE,
+        {
+          cause: error,
+        },
+      );
+    }
   }
 
   @Post(':id')
   submit(@Param('id') formId: string, @Body() submissionData: any) {
-    return this.bucketService.submit({
-      bucket: formId,
-      data: submissionData,
-    });
+    try {
+      return this.bucketService.submit({
+        bucket: formId,
+        data: submissionData,
+      });
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Could not submit form data',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.bucketService.remove(+id);
+    return this.bucketService.remove(id);
   }
 
   private extractDeviceInfo(@Request() req): {

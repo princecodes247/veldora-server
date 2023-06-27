@@ -5,7 +5,7 @@ export type BucketDocument = HydratedDocument<Bucket>;
 
 @Schema()
 export class Bucket {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   name: string;
 
   @Prop({
@@ -30,11 +30,14 @@ export class Bucket {
     platform: string;
   }>;
 
-  @Prop({ required: true })
+  @Prop({ type: String, default: '' })
   description: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   owner: string;
+
+  @Prop({ type: Date, default: Date.now })
+  createdAt: Date;
 }
 
 export const BucketSchema = SchemaFactory.createForClass(Bucket);
