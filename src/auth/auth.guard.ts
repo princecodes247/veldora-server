@@ -31,9 +31,18 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException();
       }
       // user is authenticated
-      const { email, phone } = await this.passageService.get(userID);
+      const user = await this.passageService.get(userID);
+      const { email, phone } = user;
+
       const identifier = email ? email : phone;
-      request['user'] = { userID, email, phone };
+      request['user'] = {
+        userID,
+        email,
+        phone,
+        metadata: {
+          username: user.user_metadata.username,
+        },
+      };
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
     } catch {
