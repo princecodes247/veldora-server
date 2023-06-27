@@ -6,10 +6,20 @@ import { PaginationDto } from './dto/pagination.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
+import { catchError, firstValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
+import { AxiosError } from 'axios';
+import { ConfigService } from '@nestjs/config';
+import { PassageService } from 'src/passage/passage.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private configService: ConfigService,
+    private passageService: PassageService,
+    @InjectModel(User.name) private userModel: Model<User>,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const salt = await bcrypt.genSalt();
@@ -84,8 +94,10 @@ export class UserService {
     return null;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    let data = await this.passageService.update(id, updateUserDto);
+    console.log({ data });
+    return data;
   }
 
   remove(id: number) {

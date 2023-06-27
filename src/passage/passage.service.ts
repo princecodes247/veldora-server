@@ -53,4 +53,24 @@ export class PassageService {
       return null;
     }
   }
+
+  async update(
+    userID: string,
+    data: {
+      email?: string;
+      phone?: string;
+      user_metadata?: {
+        username: string;
+      };
+    },
+  ): Promise<UserObject | null> {
+    try {
+      // this.passage = new Passage(this.passageConfig);
+      const output = await this.passage.user.update(userID, data);
+      return output;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 }
