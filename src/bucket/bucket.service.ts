@@ -153,9 +153,10 @@ export class BucketService {
         throw new Error('Bucket not found');
       }
 
-      const stats = await this.submissionService.getBucketStats(
-        bucket._id.toString(),
-      );
+      const stats = {
+        ...(await this.submissionService.getBucketStats(bucket._id.toString())),
+        views: bucket.views,
+      };
 
       return {
         ...bucket,

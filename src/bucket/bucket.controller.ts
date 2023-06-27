@@ -86,7 +86,7 @@ export class BucketController {
     );
   }
 
-  @Post(':id/submit')
+  @Post(':id')
   submit(@Param('id') formId: string, @Body() submissionData: any) {
     return this.bucketService.submit({
       bucket: formId,

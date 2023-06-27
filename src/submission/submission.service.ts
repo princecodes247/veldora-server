@@ -17,7 +17,6 @@ export class SubmissionService {
     return new this.submissionModel(createSubmissionDto).save();
   }
 
-
   async findAll({
     limit = 10,
     cursor,
@@ -56,7 +55,7 @@ export class SubmissionService {
     };
   }
 
-  async getBucketStats(bucketId: string ): Promise<AnalyticsData> {
+  async getBucketStats(bucketId: string): Promise<AnalyticsData> {
     const submissionStats = await this.submissionModel.aggregate([
       { $match: { bucket: bucketId } },
       {
@@ -72,6 +71,21 @@ export class SubmissionService {
             { $match: { _id: { $ne: null } } },
             { $project: { name: '$_id', count: 1, _id: 0 } },
           ],
+          dailySubmissions: [
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: '%Y-%m-%d',
+                    date: '$submissionTime',
+                  },
+                },
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { _id: 1 } },
+            { $project: { date: '$_id', count: 1, _id: 0 } },
+          ],
         },
       },
       {
@@ -79,9 +93,11 @@ export class SubmissionService {
           submissionCount: { $arrayElemAt: ['$submissionCount.count', 0] },
           countries: 1,
           devices: 1,
+          dailySubmissions: 1,
         },
       },
     ]);
+
     return submissionStats[0];
   }
 
