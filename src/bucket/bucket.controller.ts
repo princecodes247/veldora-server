@@ -77,7 +77,7 @@ export class BucketController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBucketDto: UpdateBucketDto) {
-    return this.bucketService.update(+id, updateBucketDto);
+    return this.bucketService.update(id, updateBucketDto);
   }
 
   @Get(':bucketId/view')
@@ -120,12 +120,20 @@ export class BucketController {
     @Param('id') formId: string,
     @Query('redirect') redirectParam: string,
     @Body() submissionData: any,
+    @Request() req,
     @Response() res,
   ) {
     try {
+      const { device, ip, platform } = this.extractDeviceInfo(req);
+      console.log({ device, ip, platform });
       const data = await this.bucketService.submit({
         bucket: formId,
         data: submissionData,
+        meta: {
+          device,
+          ip,
+          platform,
+        },
       });
 
       if (data.bucket.responseStyle === 'default') {

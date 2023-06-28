@@ -26,7 +26,19 @@ export class BucketService {
     return await bucket.save();
   }
 
-  async submit({ bucket, data }: { bucket: string; data: string }) {
+  async submit({
+    bucket,
+    data,
+    meta,
+  }: {
+    bucket: string;
+    data: string;
+    meta?: {
+      device: string;
+      ip: string;
+      platform: string;
+    };
+  }) {
     const bucketDoc = await this.bucketModel.findById(bucket);
     if (!bucketDoc) {
       throw new Error('Bucket not found');
@@ -36,7 +48,40 @@ export class BucketService {
       bucket,
       data,
     });
-    return { bucket: bucketDoc.toObject(), submission };
+
+    const { data: result } = await firstValueFrom(
+      this.httpService
+        .get<{
+          ip: string;
+          ip_number: string;
+          ip_version: number;
+          country_name: string;
+          country_code2: string;
+          isp: string;
+          response_code: '200';
+          response_message: string;
+        }>('https://api.iplocation.net/?ip=' + meta.ip)
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+    // console.log({ result });
+
+    return {
+      bucket: bucketDoc.toObject(),
+      submission,
+      meta: {
+        country: result.country_name,
+        countryCode: result.country_code2,
+        isp: result.isp,
+        ip: meta.ip,
+        device: meta.device,
+        platform: meta.platform,
+      },
+    };
   }
 
   async findAll(
@@ -222,8 +267,16 @@ export class BucketService {
       .exec();
   }
 
-  update(id: number, updateBucketDto: UpdateBucketDto) {
-    return `This action updates a #${id} bucket`;
+  update(id: string, updateBucketDto: UpdateBucketDto) {
+    // Check if responseStyle is custom and if so, check if redirectUrl is provided
+    if (
+      updateBucketDto.responseStyle === 'custom' &&
+      !updateBucketDto.customRedirect
+    ) {
+      throw new Error('redirectUrl is required when responseStyle is custom');
+    }
+    // Update bucket name, description, redirectUrl, responseStyle
+    this.bucketModel.findByIdAndUpdate(id, updateBucketDto).exec();
   }
 
   remove(id: string) {
