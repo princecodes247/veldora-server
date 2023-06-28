@@ -137,12 +137,12 @@ export class BucketController {
       });
 
       if (data.bucket.responseStyle === 'json') {
-        return {
+        return res.json({
           data: {
             message: 'Submission successful',
             submission: data.submission,
           },
-        };
+        });
       }
 
       if (data.bucket.responseStyle === 'custom') {
@@ -153,11 +153,8 @@ export class BucketController {
         return res.redirect(redirectParam || data.bucket.customRedirect);
       }
 
-      return {
-        data: {
-          message: 'Submission successful',
-        },
-      };
+      console.log('data');
+      return res.send('Submission successful');
     } catch (error) {
       throw new HttpException(
         {
