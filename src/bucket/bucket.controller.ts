@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   Delete,
   UseGuards,
   Request,
@@ -115,12 +116,42 @@ export class BucketController {
   }
 
   @Post(':id')
-  submit(@Param('id') formId: string, @Body() submissionData: any) {
+  async submit(
+    @Param('id') formId: string,
+    @Query('redirect') redirectParam: string,
+    @Body() submissionData: any,
+    @Response() res,
+  ) {
     try {
-      return this.bucketService.submit({
+      const data = await this.bucketService.submit({
         bucket: formId,
         data: submissionData,
       });
+
+      if (data.bucket.responseStyle === 'default') {
+        return {
+          data: {
+            message: 'Submission successful',
+          },
+        };
+      }
+
+      if (data.bucket.responseStyle === 'json') {
+        return {
+          data: {
+            message: 'Submission successful',
+            submission: data.submission,
+          },
+        };
+      }
+
+      if (data.bucket.responseStyle === 'custom') {
+        return res.redirect(data.bucket.customRedirect);
+      }
+
+      if (data.bucket.responseStyle === 'params') {
+        return res.redirect(redirectParam || data.bucket.customRedirect);
+      }
     } catch (error) {
       throw new HttpException(
         {

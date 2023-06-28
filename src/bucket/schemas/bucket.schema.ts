@@ -33,6 +33,16 @@ export class Bucket {
   @Prop({ type: String, default: '' })
   description: string;
 
+  @Prop({
+    type: String,
+    enum: ['default', 'json', 'params', 'custom'],
+    default: '',
+  })
+  responseStyle: string;
+
+  @Prop({ type: String })
+  customRedirect: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   owner: string;
 

@@ -27,11 +27,16 @@ export class BucketService {
   }
 
   async submit({ bucket, data }: { bucket: string; data: string }) {
+    const bucketDoc = await this.bucketModel.findById(bucket);
+    if (!bucketDoc) {
+      throw new Error('Bucket not found');
+    }
+
     const submission = await this.submissionService.create({
       bucket,
       data,
     });
-    return submission;
+    return { bucket: bucketDoc.toObject(), submission };
   }
 
   async findAll(
