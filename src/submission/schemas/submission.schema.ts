@@ -19,6 +19,10 @@ export class Submission {
     default: {
       country: '',
       device: '',
+      countryCode: '',
+      isp: '',
+      ip: '',
+      platform: '',
     },
   })
   meta: {
