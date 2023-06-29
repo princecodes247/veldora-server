@@ -136,14 +136,14 @@ export class BucketController {
         },
       });
 
-      // if (data.bucket.responseStyle === 'json') {
-      return res.json({
-        data: {
-          message: 'Submission successful',
-          submission: data.submission,
-        },
-      });
-      // }
+      if (data.bucket.responseStyle === 'json') {
+        return res.json({
+          data: {
+            message: 'Submission successful',
+            submission: data.submission,
+          },
+        });
+      }
 
       if (data.bucket.responseStyle === 'custom') {
         return res.redirect(data.bucket.customRedirect);
