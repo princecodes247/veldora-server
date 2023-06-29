@@ -126,7 +126,7 @@ export class BucketController {
     try {
       const { device, ip, platform } = this.extractDeviceInfo(req);
       console.log({ device, ip, platform });
-      const data = await this.bucketService.submit({
+      const { bucket, submission } = await this.bucketService.submit({
         bucket: formId,
         data: submissionData,
         meta: {
@@ -136,21 +136,22 @@ export class BucketController {
         },
       });
 
-      if (data.bucket.responseStyle === 'json') {
+      if (bucket.responseStyle === 'json') {
+        const { _id, bucket, data, submissionTime } = submission.toObject();
         return res.json({
           data: {
             message: 'Submission successful',
-            submission: data.submission,
+            submission: { _id, bucket, data, submissionTime },
           },
         });
       }
 
-      if (data.bucket.responseStyle === 'custom') {
-        return res.redirect(data.bucket.customRedirect);
+      if (bucket.responseStyle === 'custom') {
+        return res.redirect(bucket.customRedirect);
       }
 
-      if (data.bucket.responseStyle === 'params') {
-        return res.redirect(redirectParam || data.bucket.customRedirect);
+      if (bucket.responseStyle === 'params') {
+        return res.redirect(redirectParam || bucket.customRedirect);
       }
 
       console.log('data');
