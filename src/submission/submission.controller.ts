@@ -30,6 +30,7 @@ export class SubmissionController {
     @Query('limit') limit: number = 10,
     @Query('cursor') cursor?: string,
   ): Promise<any> {
+    // GUARD FOR USER
     return this.submissionService.findAll({
       limit,
       cursor,

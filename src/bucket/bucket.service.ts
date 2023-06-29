@@ -265,7 +265,14 @@ export class BucketService {
       .exec();
   }
 
-  update(id: string, updateBucketDto: UpdateBucketDto) {
+  async update(id: string, updateBucketDto: UpdateBucketDto, user: string) {
+    const bucket = await this.bucketModel.findById(id).exec();
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+    if (bucket.owner !== user) {
+      throw new Error('You are not the owner of this bucket');
+    }
     // Check if responseStyle is custom and if so, check if redirectUrl is provided
     if (
       updateBucketDto.responseStyle === 'custom' &&
@@ -277,7 +284,14 @@ export class BucketService {
     this.bucketModel.findByIdAndUpdate(id, updateBucketDto).exec();
   }
 
-  remove(id: string) {
+  async remove(id: string, user: string) {
+    const bucket = await this.bucketModel.findById(id).exec();
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+    if (bucket.owner !== user) {
+      throw new Error('You are not the owner of this bucket');
+    }
     return this.bucketModel.findByIdAndDelete(id).exec();
   }
 }

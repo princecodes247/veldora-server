@@ -59,9 +59,14 @@ export class BucketController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  async findOne(@Request() req, @Param('id') id: string) {
+    // GUARD FOR USER
     try {
       const bucket = await this.bucketService.findOne(id);
+      if (bucket.owner !== req.user.userID) {
+        throw new Error('Bucket not found');
+      }
       return {
         data: bucket,
       };
@@ -80,8 +85,14 @@ export class BucketController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBucketDto: UpdateBucketDto) {
-    return this.bucketService.update(id, updateBucketDto);
+  @UseGuards(AuthGuard)
+  update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() updateBucketDto: UpdateBucketDto,
+  ) {
+    // GUARD FOR USER
+    return this.bucketService.update(id, updateBucketDto, req.user.userID);
   }
 
   @Get(':bucketId/view')
@@ -176,8 +187,9 @@ export class BucketController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bucketService.remove(id);
+  // GUARD FOR USER
+  remove(@Request() req, @Param('id') id: string) {
+    return this.bucketService.remove(id, req.user.userID);
   }
 
   private extractDeviceInfo(@Request() req): {
