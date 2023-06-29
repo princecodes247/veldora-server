@@ -187,7 +187,7 @@ export class BucketController {
   }
 
   @Delete(':id')
-  // GUARD FOR USER
+  @UseGuards(AuthGuard)
   remove(@Request() req, @Param('id') id: string) {
     return this.bucketService.remove(id, req.user.userID);
   }
