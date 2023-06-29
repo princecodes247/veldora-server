@@ -38,7 +38,7 @@ export class SubmissionService {
       query['bucket'] = bucketId;
     }
 
-    const bucket = await this.bucketModel.findOne({ _id: bucketId, user });
+    const bucket = await this.bucketModel.findOne({ _id: bucketId });
     if (!bucket) {
       throw new Error('Bucket not found');
     }
