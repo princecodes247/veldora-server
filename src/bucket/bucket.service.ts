@@ -44,11 +44,6 @@ export class BucketService {
       throw new Error('Bucket not found');
     }
 
-    const submission = await this.submissionService.create({
-      bucket,
-      data,
-    });
-
     const { data: result } = await firstValueFrom(
       this.httpService
         .get<{
@@ -69,10 +64,9 @@ export class BucketService {
         ),
     );
     // console.log({ result });
-
-    return {
-      bucket: bucketDoc.toObject(),
-      submission,
+    const submission = await this.submissionService.create({
+      bucket,
+      data,
       meta: {
         country: result.country_name,
         countryCode: result.country_code2,
@@ -81,6 +75,10 @@ export class BucketService {
         device: meta.device,
         platform: meta.platform,
       },
+    });
+    return {
+      bucket: bucketDoc.toObject(),
+      submission,
     };
   }
 
