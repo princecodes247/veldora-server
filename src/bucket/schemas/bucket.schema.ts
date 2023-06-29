@@ -36,7 +36,7 @@ export class Bucket {
   @Prop({
     type: String,
     enum: ['default', 'json', 'params', 'custom'],
-    default: '',
+    default: 'default',
   })
   responseStyle: string;
 
