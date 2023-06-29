@@ -6,11 +6,13 @@ import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { Submission, SubmissionDocument } from './schemas/submission.schema';
 import { PaginationCursorDto, PaginationDto } from './dto/pagination.dto';
 import { AnalyticsData } from 'src/interfaces';
+import { Bucket } from 'src/bucket/schemas/bucket.schema';
 
 @Injectable()
 export class SubmissionService {
   constructor(
     @InjectModel(Submission.name) private submissionModel: Model<Submission>,
+    @InjectModel(Bucket.name) private bucketModel: Model<Bucket>,
   ) {}
 
   create(createSubmissionDto: CreateSubmissionDto) {
@@ -21,10 +23,12 @@ export class SubmissionService {
     limit = 10,
     cursor,
     bucketId,
+    user,
   }: {
     limit: number;
     bucketId?: string;
     cursor?: string;
+    user: string;
   }): Promise<any> {
     const query = {};
     if (cursor) {
@@ -32,6 +36,15 @@ export class SubmissionService {
     }
     if (bucketId) {
       query['bucket'] = bucketId;
+    }
+
+    const bucket = await this.bucketModel.findOne({ _id: bucketId, user });
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+
+    if (bucket.owner !== user) {
+      throw new Error('You are not the owner of this bucket');
     }
 
     const submissions = await this.submissionModel
