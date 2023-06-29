@@ -17,13 +17,17 @@ import { BucketService } from './bucket.service';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ConfigService } from '@nestjs/config';
 
 @Controller({
   path: 'buckets',
   version: '1',
 })
 export class BucketController {
-  constructor(private readonly bucketService: BucketService) {}
+  constructor(
+    private readonly bucketService: BucketService,
+    private configService: ConfigService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard)
@@ -155,7 +159,8 @@ export class BucketController {
       }
 
       console.log('data');
-      return res.send('Submission successful');
+      const clientURL = this.configService.get('CLIENT_URL');
+      return res.redirect(clientURL + '/successful');
     } catch (error) {
       throw new HttpException(
         {
