@@ -26,7 +26,7 @@ export class Submission {
     },
   })
   meta: {
-    country;
+    country: String;
     countryCode: String;
     isp: String;
     ip: String;
