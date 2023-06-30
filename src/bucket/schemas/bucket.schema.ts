@@ -43,6 +43,12 @@ export class Bucket {
   @Prop({ type: String })
   customRedirect: string;
 
+  @Prop({ type: String, default: '' })
+  accessToken: string;
+
+  @Prop({ type: String, default: '' })
+  publicKey: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   owner: string;
 

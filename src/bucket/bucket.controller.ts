@@ -18,6 +18,7 @@ import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ConfigService } from '@nestjs/config';
+import { RegenerateAccessTokenDTO } from './dto/regenerate-access-token.dto';
 
 @Controller({
   path: 'buckets',
@@ -37,6 +38,23 @@ export class BucketController {
       owner: req.user.userID,
     });
   }
+
+  @Post('regenerate-access-token')
+  @UseGuards(AuthGuard)
+  regenerateAccessToken(
+    @Request() req,
+    @Body() regenerateAccessTokenDTO: RegenerateAccessTokenDTO,
+  ) {
+    return this.bucketService.regenerateAccessToken({
+      id: regenerateAccessTokenDTO.id,
+      user: req.user.userID,
+    });
+  }
+
+  // @Get('regenerate-access-tokens')
+  // async regenerateAccessTokens(): Promise<void> {
+  //   await this.bucketService.regenerateAccessTokens();
+  // }
 
   // @Get("all")
   // findAll() {

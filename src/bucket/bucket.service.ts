@@ -1,9 +1,8 @@
-import { CreateSubmissionDto } from './../submission/dto/create-submission.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { FlatRecord, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { Bucket, BucketDocument } from './schemas/bucket.schema';
 import { PaginationDto, PaginationResult } from './dto/pagination.dto';
 import { SubmissionService } from 'src/submission/submission.service';
@@ -11,6 +10,7 @@ import { AnalyticsData } from 'src/interfaces';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class BucketService {
@@ -22,7 +22,10 @@ export class BucketService {
   ) {}
 
   async create(createBucketDto: CreateBucketDto) {
-    const bucket = new this.bucketModel(createBucketDto);
+    const bucket = new this.bucketModel({
+      ...createBucketDto,
+      accessToken: this.generateAccessToken(),
+    });
     return await bucket.save();
   }
 
@@ -293,5 +296,38 @@ export class BucketService {
       throw new Error('You are not the owner of this bucket');
     }
     return this.bucketModel.findByIdAndDelete(id).exec();
+  }
+
+  async regenerateAccessToken({ id, user }: { id: string; user: string }) {
+    const bucket = await this.bucketModel.findById(id).exec();
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+
+    if (bucket.owner !== user) {
+      throw new Error('You are not the owner of this bucket');
+    }
+
+    const accessToken = this.generateAccessToken();
+
+    bucket.accessToken = accessToken;
+    await bucket.save();
+    return accessToken;
+  }
+
+  // To cover for all the users that have been created before the access token feature was added
+  async regenerateAccessTokens(): Promise<void> {
+    const buckets = await this.bucketModel.find().exec();
+
+    for (const bucket of buckets) {
+      if (!bucket.accessToken || bucket.accessToken.trim() === '') {
+        bucket.accessToken = this.generateAccessToken();
+        await bucket.save();
+      }
+    }
+  }
+
+  private generateAccessToken() {
+    return uuidv4();
   }
 }
