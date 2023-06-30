@@ -33,12 +33,12 @@ export class SubmissionController {
     @Request() req,
     @Query('bucket') bucket: string,
     @Query('limit') limit: number = 10,
-    @Query('cursor') cursor?: string,
+    @Query('page') page?: number,
   ): Promise<any> {
     // GUARD FOR USER
     return this.submissionService.findAll({
       limit,
-      cursor,
+      page,
       bucketId: bucket,
       user: req.user.userID,
     });

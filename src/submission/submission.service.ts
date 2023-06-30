@@ -21,19 +21,17 @@ export class SubmissionService {
 
   async findAll({
     limit = 10,
-    cursor,
+    page,
     bucketId,
     user,
   }: {
     limit: number;
     bucketId?: string;
-    cursor?: string;
+    page?: number;
     user: string;
   }): Promise<any> {
     const query = {};
-    if (cursor) {
-      query['_id'] = { $lt: cursor };
-    }
+
     if (bucketId) {
       query['bucket'] = bucketId;
     }
@@ -50,20 +48,18 @@ export class SubmissionService {
     const submissions = await this.submissionModel
       .find(query)
       .sort({ _id: -1 })
-      .limit(limit)
+      .skip(page * limit)
+      .limit(limit + 1)
       .lean();
-
-    const hasNextPage = submissions.length > limit;
-    const edges = submissions.slice(0, limit).map((submission) => ({
-      cursor: submission._id.toString(),
-      ...submission,
-    }));
+    const submissionCount = await this.submissionModel.countDocuments(query);
+    const hasNextPage = submissionCount > limit;
 
     return {
-      data: edges,
+      data: submissions,
       pageInfo: {
+        pages: Math.ceil(submissionCount / limit),
         hasNextPage,
-        endCursor: hasNextPage ? edges[edges.length - 1].cursor : null,
+        nextPage: hasNextPage ? page + 1 : null,
       },
     };
   }
