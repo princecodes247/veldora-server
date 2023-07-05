@@ -118,7 +118,7 @@ export class SubmissionService {
     return `This action updates a #${id} submission`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} submission`;
+  remove(id: string) {
+    return this.submissionModel.deleteOne({ _id: id });
   }
 }

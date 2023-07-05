@@ -14,6 +14,7 @@ import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { UserBucketGuard } from 'src/bucket/user-bucket.guard';
 
 @Controller('submissions')
 export class SubmissionController {
@@ -42,5 +43,15 @@ export class SubmissionController {
       bucketId: bucket,
       user: req.user.userID,
     });
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  // ADD UserBucketGuard
+  async deleteSubmission(
+    @Request() req,
+    @Param('id') id: string,
+  ): Promise<any> {
+    return this.submissionService.remove(id);
   }
 }
