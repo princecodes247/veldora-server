@@ -21,6 +21,12 @@ export class BucketService {
     @InjectModel(Bucket.name) private bucketModel: Model<Bucket>,
   ) {}
 
+  checkBucketAccess(bucket: BucketDocument, accessToken: string) {
+    if (bucket.accessToken !== accessToken) {
+      throw new Error('Access token is invalid');
+    }
+  }
+
   async create(createBucketDto: CreateBucketDto) {
     const bucket = new this.bucketModel({
       ...createBucketDto,
@@ -196,6 +202,35 @@ export class BucketService {
   async findOne(id: string): Promise<Bucket & { stats: AnalyticsData }> {
     try {
       const bucket = await this.bucketModel.findById(id).lean();
+      // .populate('submissions')
+
+      console.log({ bucket });
+
+      if (!bucket) {
+        throw new Error('Bucket not found');
+      }
+
+      const stats = {
+        ...(await this.submissionService.getBucketStats(bucket._id.toString())),
+        views: bucket.views,
+      };
+
+      return {
+        ...bucket,
+        stats,
+      };
+    } catch (err) {
+      throw new Error('Bucket not found');
+    }
+  }
+
+  async findByAccessToken(
+    token: string,
+  ): Promise<Bucket & { stats: AnalyticsData }> {
+    try {
+      const bucket = await this.bucketModel
+        .findOne({ accessToken: token })
+        .lean();
       // .populate('submissions')
 
       console.log({ bucket });

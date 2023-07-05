@@ -19,6 +19,8 @@ import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { RegenerateAccessTokenDTO } from './dto/regenerate-access-token.dto';
+import { BucketGuard } from './bucket.guard';
+import { SubmissionService } from 'src/submission/submission.service';
 
 @Controller({
   path: 'buckets',
@@ -27,6 +29,7 @@ import { RegenerateAccessTokenDTO } from './dto/regenerate-access-token.dto';
 export class BucketController {
   constructor(
     private readonly bucketService: BucketService,
+    private readonly submissionService: SubmissionService,
     private configService: ConfigService,
   ) {}
 
@@ -51,6 +54,56 @@ export class BucketController {
     });
   }
 
+  @Get()
+  @UseGuards(AuthGuard)
+  findAllUserBuckets(@Request() req) {
+    return this.bucketService.findAllUserBuckets(
+      {
+        page: 1,
+        limit: 10,
+      },
+      req.user.userID,
+    );
+  }
+
+  @Get('/g')
+  @UseGuards(BucketGuard)
+  async externalGetBucket(@Request() req, @Param('id') id: string) {
+    try {
+      const bucket = req.bucket;
+
+      return {
+        data: bucket,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Bucket not found',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
+  }
+
+  @Get('/g/rows')
+  @UseGuards(BucketGuard)
+  async externalGetSubmissions(
+    @Request() req,
+    @Query('limit') limit: number = 10,
+    @Query('page') page?: number,
+  ): Promise<any> {
+    return this.submissionService.findAll({
+      limit,
+      page,
+      bucketId: req.bucket._id,
+      user: req.bucket.owner,
+    });
+  }
+
   // @Get('regenerate-access-tokens')
   // async regenerateAccessTokens(): Promise<void> {
   //   await this.bucketService.regenerateAccessTokens();
@@ -64,27 +117,15 @@ export class BucketController {
   //   });
   // }
 
-  @Get()
-  @UseGuards(AuthGuard)
-  findAllUserBuckets(@Request() req) {
-    return this.bucketService.findAllUserBuckets(
-      {
-        page: 1,
-        limit: 10,
-      },
-      req.user.userID,
-    );
-  }
-
   @Get(':id')
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async findOne(@Request() req, @Param('id') id: string) {
     // GUARD FOR USER
     try {
       const bucket = await this.bucketService.findOne(id);
-      if (bucket.owner !== req.user.userID) {
-        throw new Error('Bucket not found');
-      }
+      // if (bucket.owner !== req.user.userID) {
+      //   throw new Error('Bucket not found');
+      // }
       return {
         data: bucket,
       };
