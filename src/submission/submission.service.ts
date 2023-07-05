@@ -21,7 +21,7 @@ export class SubmissionService {
 
   async findAll({
     limit = 10,
-    page,
+    page = 1,
     bucketId,
     user,
   }: {
@@ -33,7 +33,7 @@ export class SubmissionService {
     const query = {};
 
     if (bucketId) {
-      query['bucket'] = bucketId;
+      query['bucket'] = bucketId.toString();
     }
 
     const bucket = await this.bucketModel.findOne({ _id: bucketId });
