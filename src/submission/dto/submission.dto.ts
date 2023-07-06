@@ -10,3 +10,7 @@ export class CreateSubmissionDto {
     platform: string;
   };
 }
+
+export class DeleteSubmissionDTO {
+  ids: string[];
+}

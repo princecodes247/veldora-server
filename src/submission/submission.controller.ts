@@ -11,7 +11,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { SubmissionService } from './submission.service';
-import { CreateSubmissionDto } from './dto/create-submission.dto';
+import { CreateSubmissionDto, DeleteSubmissionDTO } from './dto/submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserBucketGuard } from 'src/bucket/user-bucket.guard';
@@ -45,13 +45,12 @@ export class SubmissionController {
     });
   }
 
-  @Delete(':id')
-  @UseGuards(AuthGuard)
+  @Post('delete')
+  // @UseGuards(AuthGuard)
   // ADD UserBucketGuard
   async deleteSubmission(
-    @Request() req,
-    @Param('id') id: string,
+    @Body() deleteSubmissionDTO: DeleteSubmissionDTO,
   ): Promise<any> {
-    return this.submissionService.remove(id);
+    return this.submissionService.remove(deleteSubmissionDTO.ids);
   }
 }

@@ -1,7 +1,7 @@
 import { Model, ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateSubmissionDto } from './dto/create-submission.dto';
+import { CreateSubmissionDto } from './dto/submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
 import { Submission, SubmissionDocument } from './schemas/submission.schema';
 import { PaginationCursorDto, PaginationDto } from './dto/pagination.dto';
@@ -118,7 +118,7 @@ export class SubmissionService {
     return `This action updates a #${id} submission`;
   }
 
-  remove(id: string) {
-    return this.submissionModel.deleteOne({ _id: id });
+  async remove(ids: string[]) {
+    return await this.submissionModel.deleteMany({ _id: { $in: ids } });
   }
 }
