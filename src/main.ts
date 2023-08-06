@@ -11,7 +11,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
   app.useGlobalPipes(new ValidationPipe());
-  // app.setGlobalPrefix('api');
+  app.setGlobalPrefix('');
   const configService = app.get(ConfigService);
   await app.listen(3050);
 }
