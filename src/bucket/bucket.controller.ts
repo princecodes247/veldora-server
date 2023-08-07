@@ -189,6 +189,34 @@ export class BucketController {
     }
   }
 
+  @Post(':bucketId/update-whitelist')
+  @UseGuards(AuthGuard)
+  async updateWhiteList(
+    @Param('bucketId') bucketId: string,
+    @Request() req,
+    @Body() body: any,
+  ) {
+    try {
+      const bucket = await this.bucketService.findOne(bucketId);
+      if (bucket.owner !== req.user.userID) {
+        throw new Error('Bucket not found');
+      }
+      console.log({ body: body.whiteList });
+      return this.bucketService.updateWhitelist(bucketId, body.whiteList);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Bucket not found',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
+  }
+
   @Post(':id')
   async submit(
     @Param('id') formId: string,
@@ -209,7 +237,7 @@ export class BucketController {
           platform,
         },
       });
-
+      return;
       if (bucket.responseStyle === 'json') {
         const { _id, bucket, data, submissionTime } = submission.toObject();
         return res.json({
@@ -263,7 +291,7 @@ export class BucketController {
 
     // const uaParser = new UAParser(device);
     const platform = this.parsePlatform(device);
-
+    console.log({ header: req.header });
     return { platform, ip, device };
   }
 

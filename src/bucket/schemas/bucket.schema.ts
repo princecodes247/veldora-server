@@ -30,6 +30,9 @@ export class Bucket {
     platform: string;
   }>;
 
+  @Prop({ type: Array<string>, default: [] })
+  whiteList: Array<string>;
+
   @Prop({ type: String, default: '' })
   description: string;
 

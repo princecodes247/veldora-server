@@ -362,6 +362,10 @@ export class BucketService {
     }
   }
 
+  updateWhitelist(id: string, whiteList: string[]) {
+    return this.bucketModel.findByIdAndUpdate(id, { whiteList }).exec();
+  }
+
   private generateAccessToken() {
     return uuidv4();
   }
