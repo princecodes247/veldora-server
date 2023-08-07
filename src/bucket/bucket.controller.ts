@@ -189,6 +189,34 @@ export class BucketController {
     }
   }
 
+  @Post(':bucketId/update-whitelist')
+  @UseGuards(AuthGuard)
+  async updateWhiteList(
+    @Param('bucketId') bucketId: string,
+    @Request() req,
+    @Body() body: any,
+  ) {
+    try {
+      const bucket = await this.bucketService.findOne(bucketId);
+      if (bucket.owner !== req.user.userID) {
+        throw new Error('Bucket not found');
+      }
+      console.log({ body: body.whiteList });
+      return this.bucketService.updateWhitelist(bucketId, body.whiteList);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Bucket not found',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
+  }
+
   @Post(':id')
   async submit(
     @Param('id') formId: string,
@@ -198,7 +226,7 @@ export class BucketController {
     @Response() res,
   ) {
     try {
-      const { device, ip, platform } = this.extractDeviceInfo(req);
+      const { device, ip, platform, host } = this.extractDeviceInfo(req);
       console.log({ device, ip, platform });
       const { bucket, submission } = await this.bucketService.submit({
         bucket: formId,
@@ -207,9 +235,9 @@ export class BucketController {
           device,
           ip,
           platform,
+          host,
         },
       });
-
       if (bucket.responseStyle === 'json') {
         const { _id, bucket, data, submissionTime } = submission.toObject();
         return res.json({
@@ -255,16 +283,18 @@ export class BucketController {
     ip: string;
     device: string;
     platform: string;
+    host: string;
   } {
     // Retrieve the device and country information from the request, for example:
     const device =
       req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
     const ip = req.header('true-client-ip') || 'Unknown IP';
+    const host = req.header('host') || 'Unknown Host';
 
     // const uaParser = new UAParser(device);
     const platform = this.parsePlatform(device);
-
-    return { platform, ip, device };
+    console.log({ header: req.headers });
+    return { platform, ip, device, host };
   }
 
   private parsePlatform(userAgent: string): string {
