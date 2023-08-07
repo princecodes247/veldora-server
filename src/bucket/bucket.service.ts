@@ -46,11 +46,16 @@ export class BucketService {
       device: string;
       ip: string;
       platform: string;
+      host: string;
     };
   }) {
     const bucketDoc = await this.bucketModel.findById(bucket);
     if (!bucketDoc) {
       throw new Error('Bucket not found');
+    }
+
+    if (!this.isInBucketWhiteList(bucketDoc, meta.host)) {
+      throw new Error('Domain not allowed');
     }
 
     const { data: result } = await firstValueFrom(
@@ -72,6 +77,7 @@ export class BucketService {
           }),
         ),
     );
+
     // console.log({ result });
     const submission = await this.submissionService.create({
       bucket,
@@ -362,11 +368,30 @@ export class BucketService {
     }
   }
 
-  updateWhitelist(id: string, whiteList: string[]) {
-    return this.bucketModel.findByIdAndUpdate(id, { whiteList }).exec();
+  async updateWhitelist(id: string, whiteList: string[]) {
+    const bucket = await this.bucketModel.findById(id).exec();
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+
+    bucket.whiteList = whiteList;
+    await bucket.save();
+
+    return bucket;
   }
 
   private generateAccessToken() {
     return uuidv4();
+  }
+
+  private isInBucketWhiteList(bucket: Bucket, host: string) {
+    if (bucket.whiteList.length === 0) {
+      return true;
+    }
+    console.log({ host });
+    return (
+      bucket.whiteList.includes('https://' + host) ||
+      bucket.whiteList.includes('http://' + host)
+    );
   }
 }
