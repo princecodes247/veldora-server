@@ -25,10 +25,12 @@ class SubmissionController {
         status: 200,
       });
     } catch (error) {
+      console.log({ error });
       return sendResponse({
         res,
         message: 'Internal Server Error',
         success: false,
+        error,
         status: 500,
       });
     }

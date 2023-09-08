@@ -106,6 +106,7 @@ class BucketController {
         res,
         message: 'Could not fetch buckets',
         success: false,
+        error,
         status: StatusCodes.INTERNAL_SERVER_ERROR,
       });
     }
@@ -113,7 +114,7 @@ class BucketController {
 
   async findOne(req: Request, res: Response) {
     try {
-      const id: string = req.params.id;
+      const id: string = req.params.bucketId;
       const bucket = await BucketService.findOne(id);
 
       if (!bucket) {
@@ -135,7 +136,7 @@ class BucketController {
     } catch (error) {
       return sendResponse({
         res,
-        message: 'Forbidden',
+        message: '',
         success: false,
         status: StatusCodes.FORBIDDEN,
         error: error.message,

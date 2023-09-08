@@ -55,7 +55,7 @@ class UserController {
 
   async findUserProfile(req: RequestWithAuth, res: Response) {
     try {
-      const user = await UserService.findOne(req.user.userID);
+      const user = req.user;
       if (!user) {
         sendResponse({
           res,

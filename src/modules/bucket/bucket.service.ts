@@ -3,10 +3,15 @@ import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { Model, Document } from 'mongoose';
 import BucketModel, { IBucket } from './models/bucket.model';
-import { PaginationDto, PaginationResult } from './dto/pagination.dto';
+
 import { SubmissionService } from '../submission';
 import { AxiosError } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  PaginationDto,
+  PaginationMeta,
+  PaginationResult,
+} from 'src/interfaces/bucket.interfaces';
 
 class BucketService {
   constructor(private readonly bucketModel: Model<IBucket>) {}
@@ -105,19 +110,16 @@ class BucketService {
 
     const totalPages = Math.ceil(total / limit);
 
-    const meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    } = {
+    const meta: PaginationMeta = {
       total,
       page,
       limit,
-      totalPages,
+      pages: totalPages,
+      hasNextPage: totalPages > page,
+      nextPage: totalPages > page ? page + 1 : null,
     };
 
-    return { data: buckets, meta };
+    return { result: buckets, meta };
   }
 
   async findAllUserBuckets(
@@ -162,22 +164,19 @@ class BucketService {
 
     const totalPages = Math.ceil(total / limit);
 
-    const meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    } = {
+    const meta: PaginationMeta = {
       total,
       page,
       limit,
-      totalPages,
+      pages: totalPages,
+      hasNextPage: totalPages > page,
+      nextPage: totalPages > page ? page + 1 : null,
     };
 
-    return { data: buckets, meta };
+    return { result: buckets, meta };
   }
 
-  async findOne(id: string): Promise<IBucket & { stats?: any }> {
+  async findOne(id: string): Promise<(IBucket & { stats?: any }) | null> {
     try {
       const bucket = await this.bucketModel.findById(id).lean();
       // .populate('submissions')
@@ -185,7 +184,7 @@ class BucketService {
       console.log({ bucket });
 
       if (!bucket) {
-        throw new Error('Bucket not found');
+        return null;
       }
 
       const stats = {

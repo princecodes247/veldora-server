@@ -22,7 +22,8 @@ export interface IBucket extends Document {
   customRedirect: string;
   accessToken: string;
   publicKey: string;
-  owner: Types.ObjectId;
+  owner: string;
+  // owner: Types.ObjectId;
   createdAt: Date;
 }
 
@@ -56,7 +57,8 @@ export const BucketSchema = new Schema<IBucket>({
   customRedirect: { type: String },
   accessToken: { type: String, default: '' },
   publicKey: { type: String, default: '' },
-  owner: { type: 'ObjectId', ref: 'User', required: true },
+  owner: { type: String, required: true },
+  // owner: { type: 'ObjectId', ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,5 +1,6 @@
+import { PaginationResult } from 'src/interfaces/bucket.interfaces';
 import { BucketModel } from '../bucket';
-import SubmissionModel from './models/submission.model';
+import SubmissionModel, { SubmissionDocument } from './models/submission.model';
 
 class SubmissionService {
   async createSubmission(createSubmissionDto) {
@@ -7,7 +8,12 @@ class SubmissionService {
     return await submission.save();
   }
 
-  async findAllSubmissions({ limit = 10, page = 1, bucketId, user }) {
+  async findAllSubmissions({
+    limit = 10,
+    page = 1,
+    bucketId,
+    user,
+  }): Promise<PaginationResult<SubmissionDocument>> {
     const query = {};
 
     if (bucketId) {
@@ -34,9 +40,12 @@ class SubmissionService {
     const hasNextPage = submissionCount > limit;
 
     return {
-      data: submissions,
-      pageInfo: {
+      result: submissions,
+      meta: {
         pages: Math.ceil(submissionCount / limit),
+        total: submissionCount,
+        limit,
+        page,
         hasNextPage,
         nextPage: hasNextPage ? page + 1 : null,
       },
