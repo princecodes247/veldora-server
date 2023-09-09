@@ -28,7 +28,7 @@ BucketRouter.get(
   BucketController.externalGetBucket,
 );
 BucketRouter.get(
-  '/:bucketId',
+  '/old/:bucketId',
   isAuth(),
   isUserBucketWithId({ param: 'bucketId' }),
   BucketController.findOne,
