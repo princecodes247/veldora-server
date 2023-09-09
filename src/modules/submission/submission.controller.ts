@@ -9,7 +9,7 @@ class SubmissionController {
     res: Response,
   ): Promise<void> {
     try {
-      const { bucket, limit = 10, page } = req.query;
+      const { bucket, limit = 10, page = 1 } = req.query;
       const user = req.user.userID;
       const submissions = await SubmissionService.findAllSubmissions({
         limit: Number(limit),

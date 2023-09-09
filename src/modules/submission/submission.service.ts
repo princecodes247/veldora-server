@@ -1,5 +1,5 @@
 import { PaginationResult } from 'src/interfaces/bucket.interfaces';
-import { BucketModel } from '../bucket';
+import { BucketService } from '../bucket';
 import SubmissionModel, { SubmissionDocument } from './models/submission.model';
 
 class SubmissionService {
@@ -17,10 +17,10 @@ class SubmissionService {
     const query = {};
 
     if (bucketId) {
-      query['bucket'] = bucketId.toString();
+      query['bucket'] = bucketId;
     }
 
-    const bucket = await BucketModel.findOne({ _id: bucketId });
+    const bucket = await BucketService.findOne(bucketId);
 
     if (!bucket) {
       throw new Error('Bucket not found');
@@ -35,10 +35,10 @@ class SubmissionService {
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit + 1)
-      .lean();
-    const submissionCount = await SubmissionModel.countDocuments(query);
+      .lean()
+      .exec();
+    const submissionCount = await SubmissionModel.countDocuments(query).exec();
     const hasNextPage = submissionCount > limit;
-
     return {
       result: submissions,
       meta: {
