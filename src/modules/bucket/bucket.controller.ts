@@ -280,7 +280,7 @@ class BucketController {
   async viewBucket(req: Request, res: Response) {
     try {
       const { bucketId } = req.params;
-      const { device, ip, platform } = this.extractDeviceInfo(req);
+      const { device, ip, platform } = extractDeviceInfo(req);
       console.log({ device, ip, platform });
       await BucketService.addViewToBucket(bucketId, {
         device,
@@ -369,7 +369,7 @@ class BucketController {
     try {
       const { bucketId } = req.params;
       const redirectParam = req.query.redirect as string;
-      const { device, ip, platform, host } = this.extractDeviceInfo(req);
+      const { device, ip, platform, host } = extractDeviceInfo(req);
       console.log({ device, ip, platform });
       const { bucket, submission } = await BucketService.submit({
         bucket: bucketId,
@@ -492,40 +492,40 @@ class BucketController {
       });
     }
   }
+}
 
-  private extractDeviceInfo(req: Request): {
-    ip: string;
-    device: string;
-    platform: string;
-    host: string;
-  } {
-    // Retrieve the device and country information from the request, for example:
-    const device =
-      req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
-    const ip = req.header('true-client-ip') || 'Unknown IP';
-    const host = req.header('host') || 'Unknown Host';
-    const platform = this.parsePlatform(device);
-    console.log({ header: req.headers });
-    return { platform, ip, device, host };
+function extractDeviceInfo(req: Request): {
+  ip: string;
+  device: string;
+  platform: string;
+  host: string;
+} {
+  // Retrieve the device and country information from the request, for example:
+  const device =
+    req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
+  const ip = req.header('true-client-ip') || 'Unknown IP';
+  const host = req.header('host') || 'Unknown Host';
+  const platform = parsePlatform(device);
+  console.log({ header: req.headers });
+  return { platform, ip, device, host };
+}
+
+function parsePlatform(userAgent: string): string {
+  let platform = 'Unknown Platform';
+
+  if (userAgent.includes('Windows')) {
+    platform = 'Windows';
+  } else if (userAgent.includes('Macintosh')) {
+    platform = 'Macintosh';
+  } else if (userAgent.includes('Linux')) {
+    platform = 'Linux';
+  } else if (userAgent.includes('Android')) {
+    platform = 'Android';
+  } else if (userAgent.includes('iOS')) {
+    platform = 'iOS';
   }
 
-  private parsePlatform(userAgent: string): string {
-    let platform = 'Unknown Platform';
-
-    if (userAgent.includes('Windows')) {
-      platform = 'Windows';
-    } else if (userAgent.includes('Macintosh')) {
-      platform = 'Macintosh';
-    } else if (userAgent.includes('Linux')) {
-      platform = 'Linux';
-    } else if (userAgent.includes('Android')) {
-      platform = 'Android';
-    } else if (userAgent.includes('iOS')) {
-      platform = 'iOS';
-    }
-
-    return platform;
-  }
+  return platform;
 }
 
 export default new BucketController();
