@@ -25,7 +25,6 @@ BucketRouter.get(
   isUserBucketWithSlug({ param: 'slug' }),
   BucketController.externalGetBucket,
 );
-
 BucketRouter.get(
   '/:bucketId',
   isAuth(),
@@ -42,6 +41,8 @@ BucketRouter.post(
 BucketRouter.delete('/:bucketId', isAuth(), BucketController.remove);
 
 // Data collection routes
+BucketRouter.get('/:slug/view', BucketController.viewBucketBySlug);
+BucketRouter.post('/:slug', BucketController.submitBySlug);
 BucketRouter.get('/:bucketId/view', BucketController.viewBucket);
 BucketRouter.post('/:bucketId', BucketController.submit);
 
