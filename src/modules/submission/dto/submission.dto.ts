@@ -1,4 +1,4 @@
-export class CreateSubmissionDto {
+export interface CreateSubmissionDto {
   bucket: string;
   data: any;
   meta?: {
@@ -11,6 +11,6 @@ export class CreateSubmissionDto {
   };
 }
 
-export class DeleteSubmissionDTO {
+export interface DeleteSubmissionDTO {
   ids: string[];
 }

@@ -1,25 +1,11 @@
-import { IsOptional, IsPositive } from 'class-validator';
-import { Transform } from 'class-transformer';
-
-export class PaginationCursorDto {
-  @IsOptional()
+export interface PaginationCursorDto {
   cursor?: string;
 
-  @IsOptional()
-  @Transform(({ value }) => parseInt(value))
-  @IsPositive()
   limit?: number;
 }
 
-export class PaginationDto {
-  @IsOptional()
-  @Transform(({ value }) => parseInt(value))
-  @IsPositive()
+export interface PaginationDto {
   page?: number;
-  
-  @IsOptional()
-  @Transform(({ value }) => parseInt(value))  
-  @IsPositive()
   limit?: number;
 }
 

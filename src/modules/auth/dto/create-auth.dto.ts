@@ -1,1 +1,1 @@
-export class CreateAuthDto {}
+export interface CreateAuthDto {}
