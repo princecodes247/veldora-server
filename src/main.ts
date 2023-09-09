@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+
 import express from 'express';
 const app = express();
 
 import cors from 'cors';
-import { corsOptions } from './config';
+// import { corsOptions } from './config';
 import sgMail from '@sendgrid/mail';
 import cookieParser from 'cookie-parser';
 import connectToDatabase from './config/database.config';
