@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "start": "node build/index.js",
+    "start": "node build/main.js",
     "build": "tsc",
     "dev": "nodemon",
     "ts.check": "tsc --project tsconfig.json",
