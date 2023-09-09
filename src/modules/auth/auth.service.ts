@@ -3,8 +3,8 @@ import UserService from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 
 import { IUser } from '../user/models/user.model';
-import PassageAuth from '../../utils/passage-auth.utils';
-import JWT from '../../utils/jwt.utils';
+import PassageAuth from '../../utils/passage-auth.util';
+import JWT from '../../utils/jwt.util';
 
 class AuthService {
   constructor(private passageAuth: PassageAuth) {}

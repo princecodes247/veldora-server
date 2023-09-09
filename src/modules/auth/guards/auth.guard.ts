@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import PassageAuth from '../../../utils/passage-auth.utils';
+import PassageAuth from '../../../utils/passage-auth.util';
 
 const isAuth = () => {
   const passageAuth = new PassageAuth();

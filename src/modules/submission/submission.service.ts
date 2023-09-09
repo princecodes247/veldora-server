@@ -1,4 +1,4 @@
-import { PaginationResult } from 'src/interfaces/bucket.interfaces';
+import { PaginationResult } from '../../interfaces/bucket.interfaces';
 import { BucketService } from '../bucket';
 import SubmissionModel, { SubmissionDocument } from './models/submission.model';
 
@@ -20,17 +20,17 @@ class SubmissionService {
       query['bucket'] = bucketId;
     }
 
-    const bucket = await BucketService.findOne(bucketId);
+    // const bucket = await BucketService.findOne(bucketId);
 
-    if (!bucket) {
-      throw new Error('Bucket not found');
-    }
+    // if (!bucket) {
+    //   throw new Error('Bucket not found');
+    // }
 
-    if (bucket.owner !== user) {
-      throw new Error('You are not the owner of this bucket');
-    }
+    // if (bucket.owner !== user) {
+    //   throw new Error('You are not the owner of this bucket');
+    // }
 
-    const skip = page * limit;
+    const skip = (Math.max(page, 1) - 1) * limit;
     const submissions = await SubmissionModel.find(query)
       .sort({ _id: -1 })
       .skip(skip)

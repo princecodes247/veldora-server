@@ -1,25 +1,41 @@
 import express from 'express';
 import BucketController from './bucket.controller';
 import { isAuth } from '../auth';
+import { isUserBucketWithId } from './guards/user-bucket.guard';
 
 const BucketRouter = express.Router();
+export const OpenBucketRouter = express.Router();
 
-BucketRouter.post('/', BucketController.create);
+BucketRouter.post('/', isAuth(), BucketController.create);
 BucketRouter.post(
   '/regenerate-access-token',
+  isAuth(),
   BucketController.regenerateAccessToken,
 );
+BucketRouter.get('/', BucketController.findAll);
 BucketRouter.get('/', isAuth(), BucketController.findAllUserBuckets);
-BucketRouter.get('/g/:bucketId', BucketController.externalGetBucket);
-BucketRouter.get('/g/rows', BucketController.externalGetSubmissions);
-BucketRouter.get('/:bucketId', isAuth(), BucketController.findOne);
-BucketRouter.patch('/:bucketId', BucketController.update);
-BucketRouter.get('/:bucketId/view', BucketController.viewBucket);
-BucketRouter.post('/:bucketId', BucketController.submit);
+// BucketRouter.get('/generate-slugs', BucketController.generateSlugs);
+
+BucketRouter.get(
+  '/:bucketId',
+  isAuth(),
+  isUserBucketWithId({ param: 'bucketId' }),
+  BucketController.findOne,
+);
+BucketRouter.patch('/:bucketId', isAuth(), BucketController.update);
 BucketRouter.post(
   '/:bucketId/update-whitelist',
+  isAuth(),
   BucketController.updateWhiteList,
 );
-BucketRouter.delete('/:bucketId', BucketController.remove);
+BucketRouter.delete('/:bucketId', isAuth(), BucketController.remove);
+
+// Data collection routes
+BucketRouter.get('/:bucketId/view', BucketController.viewBucket);
+BucketRouter.post('/:bucketId', BucketController.submit);
+
+// Open routes
+OpenBucketRouter.get('/', BucketController.externalGetSubmissions);
+OpenBucketRouter.get('/stats', BucketController.externalGetBucket);
 
 export default BucketRouter;

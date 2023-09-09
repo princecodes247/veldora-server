@@ -11,7 +11,7 @@ import {
   PaginationDto,
   PaginationMeta,
   PaginationResult,
-} from 'src/interfaces/bucket.interfaces';
+} from '../../interfaces/bucket.interfaces';
 
 class BucketService {
   constructor(private readonly bucketModel: Model<IBucket>) {}
@@ -275,17 +275,24 @@ class BucketService {
     if (bucket.owner.toString() !== user) {
       throw new Error('You are not the owner of this bucket');
     }
+
+    const { customRedirect, description, name, responseStyle } =
+      updateBucketDto;
     // Check if responseStyle is custom and if so, check if customRedirect is provided
-    if (
-      updateBucketDto.responseStyle === 'custom' &&
-      !updateBucketDto.customRedirect
-    ) {
+    if (responseStyle === 'custom' && !customRedirect) {
       throw new Error(
         'customRedirect is required when responseStyle is custom',
       );
     }
     // Update bucket name, description, customRedirect, responseStyle
-    await this.bucketModel.findByIdAndUpdate(id, updateBucketDto).exec();
+    await this.bucketModel
+      .findByIdAndUpdate(id, {
+        customRedirect,
+        description,
+        name,
+        responseStyle,
+      })
+      .exec();
   }
 
   async remove(id: string, user: string) {
@@ -296,7 +303,7 @@ class BucketService {
     if (bucket.owner.toString() !== user) {
       throw new Error('You are not the owner of this bucket');
     }
-    await this.bucketModel.findByIdAndDelete(id).exec();
+    return await this.bucketModel.findByIdAndDelete(id).exec();
   }
 
   async regenerateAccessToken({ id, user }: { id: string; user: string }) {
@@ -330,6 +337,25 @@ class BucketService {
 
   private generateAccessToken() {
     return uuidv4();
+  }
+
+  // Function to generate slugs for existing buckets
+  async generateSlugsForExistingBuckets() {
+    const regex = /-$/;
+    const bucketsWithoutSlugs = await BucketModel.find({
+      // slug: { $exists: false },
+      slug: regex,
+      name: { $exists: true },
+    });
+
+    for (const bucket of bucketsWithoutSlugs) {
+      const slug = bucket.name.toLowerCase().replace(/\s+/g, '-');
+      bucket.slug = slug;
+      await bucket.save();
+      console.log(`Generated slug "${slug}" for bucket "${bucket.name}"`);
+    }
+
+    console.log('Finished generating slugs for existing buckets.');
   }
 
   private isInBucketWhiteList(bucket: IBucket, host: string) {
