@@ -308,7 +308,7 @@ class BucketController {
   async viewBucketBySlug(req: Request, res: Response) {
     try {
       const { slug } = req.params;
-      const { device, ip, platform } = this.extractDeviceInfo(req);
+      const { device, ip, platform } = extractDeviceInfo(req);
       console.log({ device, ip, platform });
       await BucketService.addViewToBucketBySlug(slug, {
         device,
@@ -418,7 +418,7 @@ class BucketController {
     try {
       const { slug } = req.params;
       const redirectParam = req.query.redirect as string;
-      const { device, ip, platform, host } = this.extractDeviceInfo(req);
+      const { device, ip, platform, host } = extractDeviceInfo(req);
       console.log({ device, ip, platform });
       const { bucket, submission } = await BucketService.submitSlug({
         bucket: slug,
