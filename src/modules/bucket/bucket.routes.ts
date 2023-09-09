@@ -12,7 +12,7 @@ BucketRouter.post(
   isAuth(),
   BucketController.regenerateAccessToken,
 );
-BucketRouter.get('/', BucketController.findAll);
+// BucketRouter.get('/', BucketController.findAll);
 BucketRouter.get('/', isAuth(), BucketController.findAllUserBuckets);
 // BucketRouter.get('/generate-slugs', BucketController.generateSlugs);
 
