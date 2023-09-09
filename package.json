@@ -31,7 +31,6 @@
     "nanoid": "3",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.7.2",
-    "typescript": "^5.1.6",
     "unique-names-generator": "^4.7.1",
     "uuid": "^9.0.0",
     "zod": "^3.22.2"
