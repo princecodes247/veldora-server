@@ -198,6 +198,31 @@ class BucketService {
     }
   }
 
+  async findOneBySlug(
+    slug: string,
+  ): Promise<(IBucket & { stats?: any }) | null> {
+    try {
+      const bucket = await this.bucketModel.findOne({ slug }).lean();
+      // .populate('submissions')
+
+      if (!bucket) {
+        return null;
+      }
+
+      const stats = {
+        ...(await SubmissionService.getBucketStats(bucket._id.toString())),
+        views: bucket.views,
+      };
+
+      return {
+        ...bucket,
+        stats,
+      };
+    } catch (err) {
+      throw new Error('Bucket not found');
+    }
+  }
+
   async findByAccessToken(token: string): Promise<IBucket & { stats?: any }> {
     try {
       const bucket = await this.bucketModel

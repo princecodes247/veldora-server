@@ -163,6 +163,37 @@ class BucketController {
       });
     }
   }
+  async findOneBySlug(req: Request, res: Response) {
+    try {
+      const slug: string = req.params.slug;
+      const bucket = await BucketService.findOneBySlug(slug);
+
+      if (!bucket) {
+        return sendResponse({
+          res,
+          message: 'Bucket not found',
+          success: false,
+          status: StatusCodes.NOT_FOUND,
+        });
+      }
+
+      return sendResponse({
+        res,
+        message: 'Bucket found',
+        success: true,
+        data: bucket,
+        status: StatusCodes.OK,
+      });
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: '',
+        success: false,
+        status: StatusCodes.FORBIDDEN,
+        error: error.message,
+      });
+    }
+  }
 
   async externalGetBucket(
     req: Request & {
