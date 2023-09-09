@@ -397,7 +397,7 @@ function extractDeviceInfo(req: Request): {
     req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
   const ip = req.header('true-client-ip') || 'Unknown IP';
   const host = req.header('host') || 'Unknown Host';
-  const platform = this.parsePlatform(device);
+  const platform = parsePlatform(device);
   console.log({ header: req.headers });
   return { platform, ip, device, host };
 }
