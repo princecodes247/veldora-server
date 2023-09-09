@@ -60,6 +60,26 @@ class BucketController {
     }
   }
 
+  async generateSlugs(req: RequestWithAuth, res: Response) {
+    try {
+      await BucketService.generateSlugsForExistingBuckets();
+      return sendResponse({
+        res,
+        message: 'Slugs generated',
+        success: true,
+        status: StatusCodes.CREATED,
+      });
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: 'Could not generate slugs',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
   async findAll(req: RequestWithAuth, res: Response) {
     try {
       const buckets = await BucketService.findAll({
@@ -106,6 +126,7 @@ class BucketController {
         res,
         message: 'Could not fetch buckets',
         success: false,
+        error,
         status: StatusCodes.INTERNAL_SERVER_ERROR,
       });
     }
@@ -113,7 +134,7 @@ class BucketController {
 
   async findOne(req: Request, res: Response) {
     try {
-      const id: string = req.params.id;
+      const id: string = req.params.bucketId;
       const bucket = await BucketService.findOne(id);
 
       if (!bucket) {
@@ -135,7 +156,7 @@ class BucketController {
     } catch (error) {
       return sendResponse({
         res,
-        message: 'Forbidden',
+        message: '',
         success: false,
         status: StatusCodes.FORBIDDEN,
         error: error.message,
@@ -191,6 +212,7 @@ class BucketController {
         res,
         message: 'Could not find Bucket',
         success: false,
+        error: error?.message ?? error,
         status: StatusCodes.INTERNAL_SERVER_ERROR,
       });
     }
@@ -198,19 +220,28 @@ class BucketController {
 
   async update(req: RequestWithAuth, res: Response) {
     try {
-      const { id } = req.params;
+      const { bucketId } = req.params;
       const updateBucketDto = req.body;
       const result = await BucketService.update(
-        id,
+        bucketId,
         updateBucketDto,
         req.user.userID,
       );
-      return res.json(result);
+
+      return sendResponse({
+        res,
+        message: 'Bucket Updated',
+        success: true,
+        data: result,
+        status: StatusCodes.CREATED,
+      });
     } catch (error) {
-      return res.status(403).json({
-        status: 403,
-        error: 'Failed to update bucket',
-        cause: error.message,
+      return sendResponse({
+        res,
+        message: 'Failed to update bucket',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -233,10 +264,12 @@ class BucketController {
         ),
       );
     } catch (error) {
-      return res.status(503).json({
-        status: 503,
-        error: 'Unable to get image',
-        cause: error.message,
+      return sendResponse({
+        res,
+        message: 'Unable to get image',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.SERVICE_UNAVAILABLE,
       });
     }
   }
@@ -254,11 +287,22 @@ class BucketController {
         bucketId,
         req.body.whiteList,
       );
-      res.status(200).json({ message: 'Whitelist updated' });
+
+      return sendResponse({
+        res,
+        message: 'Whitelist updated',
+        success: true,
+        data: updatedBucket,
+        status: StatusCodes.OK,
+      });
     } catch (error) {
-      res
-        .status(403)
-        .json({ status: 403, error: 'Bucket not found', cause: error });
+      return sendResponse({
+        res,
+        message: 'Bucket not found',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.NOT_FOUND,
+      });
     }
   }
 
@@ -280,11 +324,12 @@ class BucketController {
       });
       if (bucket.responseStyle === 'json') {
         const { _id, bucket, data, submissionTime } = submission.toObject();
-        return res.json({
-          data: {
-            message: 'Submission successful',
-            submission: { _id, bucket, data, submissionTime },
-          },
+        return sendResponse({
+          res,
+          message: 'Submission successful',
+          success: true,
+          data: { _id, bucket, data, submissionTime },
+          status: StatusCodes.OK,
         });
       }
 
@@ -300,13 +345,44 @@ class BucketController {
       const clientURL = CLIENT_URL;
       return res.redirect(clientURL + '/successful');
     } catch (error) {
-      res.status(400).json({ error: 'Could not submit form data' });
+      return sendResponse({
+        res,
+        message: 'Could not submit form data',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 
-  remove(req: RequestWithAuth) {
-    const { bucketId } = req.params;
-    return BucketService.remove(bucketId, req.user.userID);
+  async remove(req: RequestWithAuth, res: Response) {
+    try {
+      const { bucketId } = req.params;
+      const bucket = await BucketService.remove(bucketId, req.user.userID);
+      if (!bucket) {
+        return sendResponse({
+          res,
+          message: "Couldn't find bucket",
+          success: true,
+          status: StatusCodes.NOT_FOUND,
+        });
+      }
+      return sendResponse({
+        res,
+        message: 'Bucket Deleted',
+        success: true,
+
+        status: StatusCodes.OK,
+      });
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: 'Could not submit form data',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+      });
+    }
   }
 
   private extractDeviceInfo(req: Request): {

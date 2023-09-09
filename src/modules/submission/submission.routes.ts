@@ -1,14 +1,24 @@
-import express, { Request, Response, Router } from 'express';
-
-import { CreateSubmissionDto, DeleteSubmissionDTO } from './dto/submission.dto';
-import { UpdateSubmissionDto } from './dto/update-submission.dto';
+import express, { Router } from 'express';
 
 import SubmissionController from './submission.controller';
+import { isAuth } from '../auth';
+import { isUserBucketWithId } from '../bucket/guards/user-bucket.guard';
 
 const SubmissionRouter: Router = express.Router();
 
-SubmissionRouter.get('/', SubmissionController.getSubmissionsByFormId);
+SubmissionRouter.get(
+  '/',
+  isAuth(),
+  isUserBucketWithId({
+    query: 'bucket',
+  }),
+  SubmissionController.getSubmissionsByFormId,
+);
 
-SubmissionRouter.post('/delete', SubmissionController.deleteSubmission);
+SubmissionRouter.post(
+  '/delete',
+  isAuth(),
+  SubmissionController.deleteSubmission,
+);
 
 export default SubmissionRouter;

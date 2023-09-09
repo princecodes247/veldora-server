@@ -1,5 +1,6 @@
-import { BucketModel } from '../bucket';
-import SubmissionModel from './models/submission.model';
+import { PaginationResult } from '../../interfaces/bucket.interfaces';
+import { BucketService } from '../bucket';
+import SubmissionModel, { SubmissionDocument } from './models/submission.model';
 
 class SubmissionService {
   async createSubmission(createSubmissionDto) {
@@ -7,36 +8,44 @@ class SubmissionService {
     return await submission.save();
   }
 
-  async findAllSubmissions({ limit = 10, page = 1, bucketId, user }) {
+  async findAllSubmissions({
+    limit = 10,
+    page = 1,
+    bucketId,
+    user,
+  }): Promise<PaginationResult<SubmissionDocument>> {
     const query = {};
 
     if (bucketId) {
-      query['bucket'] = bucketId.toString();
+      query['bucket'] = bucketId;
     }
 
-    const bucket = await BucketModel.findOne({ _id: bucketId });
+    // const bucket = await BucketService.findOne(bucketId);
 
-    if (!bucket) {
-      throw new Error('Bucket not found');
-    }
+    // if (!bucket) {
+    //   throw new Error('Bucket not found');
+    // }
 
-    if (bucket.owner !== user) {
-      throw new Error('You are not the owner of this bucket');
-    }
+    // if (bucket.owner !== user) {
+    //   throw new Error('You are not the owner of this bucket');
+    // }
 
-    const skip = page * limit;
+    const skip = (Math.max(page, 1) - 1) * limit;
     const submissions = await SubmissionModel.find(query)
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit + 1)
-      .lean();
-    const submissionCount = await SubmissionModel.countDocuments(query);
+      .lean()
+      .exec();
+    const submissionCount = await SubmissionModel.countDocuments(query).exec();
     const hasNextPage = submissionCount > limit;
-
     return {
-      data: submissions,
-      pageInfo: {
+      result: submissions,
+      meta: {
         pages: Math.ceil(submissionCount / limit),
+        total: submissionCount,
+        limit,
+        page,
         hasNextPage,
         nextPage: hasNextPage ? page + 1 : null,
       },

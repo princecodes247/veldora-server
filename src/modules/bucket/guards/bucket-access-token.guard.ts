@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import BucketService from '../bucket.service';
 
-const bucketGuardMiddleware = () => {
+const hasAccessToken = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const token = extractTokenFromHeader(req);
     if (!token) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
+
     try {
       const payload = await BucketService.findByAccessToken(token);
       if (!payload) {
@@ -27,4 +28,4 @@ const extractTokenFromHeader = (request: Request): string | undefined => {
   return type === 'Bearer' ? token : undefined;
 };
 
-export default bucketGuardMiddleware;
+export default hasAccessToken;

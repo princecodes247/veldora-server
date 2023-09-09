@@ -1,7 +1,11 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
+import slug from 'mongoose-slug-generator';
+import generateSlug from '../../../utils/generate-slug.util';
 
+mongoose.plugin(slug);
 export interface IBucket extends Document {
   name: string;
+  slug: string;
   views: Array<{
     country: string;
     device: string;
@@ -22,12 +26,14 @@ export interface IBucket extends Document {
   customRedirect: string;
   accessToken: string;
   publicKey: string;
-  owner: Types.ObjectId;
+  owner: string;
+  // owner: Types.ObjectId;
   createdAt: Date;
 }
 
 export const BucketSchema = new Schema<IBucket>({
   name: { type: String, required: true },
+  slug: { type: String, slug: ['title', 'subtitle'], unique: true },
   views: [
     {
       country: String,
@@ -56,8 +62,32 @@ export const BucketSchema = new Schema<IBucket>({
   customRedirect: { type: String },
   accessToken: { type: String, default: '' },
   publicKey: { type: String, default: '' },
-  owner: { type: 'ObjectId', ref: 'User', required: true },
+  owner: { type: String, required: true },
+  // owner: { type: 'ObjectId', ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
+});
+
+BucketSchema.pre('save', async function (next) {
+  const doc = this;
+
+  // Convert the name field to a slug
+  const slug = doc.name.trim().toLowerCase().replace(/\s+/g, '-');
+
+  // Check if the slug is already taken
+  const existingDoc = await mongoose.model('Bucket').findOne({ slug });
+
+  // If the slug is already taken, append a unique ID using shortid
+  if (existingDoc) {
+    const uniqueId = await generateSlug();
+    console.log({ uniqueId });
+    doc.slug = `${slug}-${uniqueId}`;
+  } else {
+    doc.slug = slug;
+  }
+  doc.name = doc.name.trim();
+  doc.description = doc.description.trim();
+
+  next();
 });
 
 const BucketModel = mongoose.model<IBucket>('Bucket', BucketSchema);

@@ -9,7 +9,7 @@ class SubmissionController {
     res: Response,
   ): Promise<void> {
     try {
-      const { bucket, limit = 10, page } = req.query;
+      const { bucket, limit = 10, page = 1 } = req.query;
       const user = req.user.userID;
       const submissions = await SubmissionService.findAllSubmissions({
         limit: Number(limit),
@@ -25,10 +25,12 @@ class SubmissionController {
         status: 200,
       });
     } catch (error) {
+      console.log({ error });
       return sendResponse({
         res,
         message: 'Internal Server Error',
         success: false,
+        error,
         status: 500,
       });
     }

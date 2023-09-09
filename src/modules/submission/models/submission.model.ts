@@ -11,35 +11,41 @@ export interface SubmissionMeta {
 
 export interface SubmissionDocument extends Document {
   submissionTime: Date;
-  bucket: mongoose.Types.ObjectId;
+  bucket: string;
   data: any;
   meta: SubmissionMeta;
 }
 
-export interface SubmissionModel extends Model<SubmissionDocument> {}
+// export interface SubmissionModel extends Model<SubmissionDocument> {}
 
-const SubmissionSchema = new Schema<SubmissionDocument, SubmissionModel>({
-  submissionTime: { type: Date, default: Date.now },
-  bucket: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Bucket',
-    required: true,
-  },
-  data: { type: mongoose.Schema.Types.Mixed, required: true },
-  meta: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {
-      country: '',
-      device: '',
-      countryCode: '',
-      isp: '',
-      ip: '',
-      platform: '',
+const SubmissionSchema = new Schema<SubmissionDocument>(
+  {
+    submissionTime: { type: Date, default: Date.now },
+    bucket: {
+      // type: mongoose.Schema.Types.ObjectId,
+      type: String,
+      ref: 'Bucket',
+      required: true,
+    },
+    data: { type: mongoose.Schema.Types.Mixed, required: true },
+    meta: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {
+        country: '',
+        device: '',
+        countryCode: '',
+        isp: '',
+        ip: '',
+        platform: '',
+      },
     },
   },
-});
+  {
+    timestamps: true,
+  },
+);
 
-const SubmissionModel = mongoose.model<SubmissionDocument, SubmissionModel>(
+const SubmissionModel = mongoose.model<SubmissionDocument>(
   'Submission',
   SubmissionSchema,
 );
