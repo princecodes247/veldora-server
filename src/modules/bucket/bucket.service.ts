@@ -1,4 +1,3 @@
-import { BucketDocument } from './../../../dist/bucket/schemas/bucket.schema.d';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
 import { Model, Document } from 'mongoose';
@@ -74,9 +73,7 @@ class BucketService {
     };
   }
 
-  async findAll(
-    pagination: PaginationDto,
-  ): Promise<PaginationResult<BucketDocument>> {
+  async findAll(pagination: PaginationDto): Promise<PaginationResult<IBucket>> {
     const { page, limit = 1 } = pagination;
     const skip = page ? (page - 1) * limit : 0;
     const total = await this.bucketModel.countDocuments();
@@ -125,7 +122,7 @@ class BucketService {
   async findAllUserBuckets(
     pagination: PaginationDto,
     owner: string,
-  ): Promise<PaginationResult<BucketDocument>> {
+  ): Promise<PaginationResult<IBucket>> {
     const { page, limit = 1 } = pagination;
     const skip = page ? (page - 1) * limit : 0;
     const total = await this.bucketModel.countDocuments({ owner });
