@@ -5,9 +5,11 @@ import {
   isUserBucketWithId,
   isUserBucketWithSlug,
 } from './guards/user-bucket.guard';
+import hasAccessToken from './guards/bucket-access-token.guard';
 
 const BucketRouter = express.Router();
 export const OpenBucketRouter = express.Router();
+export const SubmitBucketRouter = express.Router();
 
 BucketRouter.post('/', isAuth(), BucketController.create);
 BucketRouter.post(
@@ -41,13 +43,22 @@ BucketRouter.post(
 BucketRouter.delete('/:bucketId', isAuth(), BucketController.remove);
 
 // Data collection routes
-BucketRouter.get('/:slug/view', BucketController.viewBucketBySlug);
-BucketRouter.post('/:slug', BucketController.submitBySlug);
 BucketRouter.get('/:bucketId/view', BucketController.viewBucket);
 BucketRouter.post('/:bucketId', BucketController.submit);
 
 // Open routes
-OpenBucketRouter.get('/', BucketController.externalGetSubmissions);
-OpenBucketRouter.get('/stats', BucketController.externalGetBucket);
+OpenBucketRouter.get(
+  '/',
+  hasAccessToken(),
+  BucketController.externalGetSubmissions,
+);
+OpenBucketRouter.get(
+  '/stats',
+  hasAccessToken(),
+  BucketController.externalGetBucket,
+);
+
+OpenBucketRouter.get('/:slug/view', BucketController.viewBucketBySlug);
+OpenBucketRouter.post('/:slug', BucketController.submitBySlug);
 
 export default BucketRouter;
