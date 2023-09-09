@@ -163,6 +163,37 @@ class BucketController {
       });
     }
   }
+  async findOneBySlug(req: Request, res: Response) {
+    try {
+      const slug: string = req.params.slug;
+      const bucket = await BucketService.findOneBySlug(slug);
+
+      if (!bucket) {
+        return sendResponse({
+          res,
+          message: 'Bucket not found',
+          success: false,
+          status: StatusCodes.NOT_FOUND,
+        });
+      }
+
+      return sendResponse({
+        res,
+        message: 'Bucket found',
+        success: true,
+        data: bucket,
+        status: StatusCodes.OK,
+      });
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: '',
+        success: false,
+        status: StatusCodes.FORBIDDEN,
+        error: error.message,
+      });
+    }
+  }
 
   async externalGetBucket(
     req: Request & {
@@ -274,6 +305,34 @@ class BucketController {
     }
   }
 
+  async viewBucketBySlug(req: Request, res: Response) {
+    try {
+      const { slug } = req.params;
+      const { device, ip, platform } = extractDeviceInfo(req);
+      console.log({ device, ip, platform });
+      await BucketService.addViewToBucketBySlug(slug, {
+        device,
+        ip,
+        platform,
+      });
+      res.set('Content-Type', 'image/png');
+      res.send(
+        Buffer.from(
+          'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+          'base64',
+        ),
+      );
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: 'Unable to get image',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.SERVICE_UNAVAILABLE,
+      });
+    }
+  }
+
   async updateWhiteList(req: RequestWithAuth, res: Response) {
     try {
       const bucketId: string = req.params.bucketId;
@@ -314,6 +373,55 @@ class BucketController {
       console.log({ device, ip, platform });
       const { bucket, submission } = await BucketService.submit({
         bucket: bucketId,
+        data: req.body,
+        meta: {
+          device,
+          ip,
+          platform,
+          host,
+        },
+      });
+      if (bucket.responseStyle === 'json') {
+        const { _id, bucket, data, submissionTime } = submission.toObject();
+        return sendResponse({
+          res,
+          message: 'Submission successful',
+          success: true,
+          data: { _id, bucket, data, submissionTime },
+          status: StatusCodes.OK,
+        });
+      }
+
+      if (bucket.responseStyle === 'custom') {
+        return res.redirect(bucket.customRedirect);
+      }
+
+      if (bucket.responseStyle === 'params') {
+        return res.redirect(redirectParam || bucket.customRedirect);
+      }
+
+      console.log('data');
+      const clientURL = CLIENT_URL;
+      return res.redirect(clientURL + '/successful');
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: 'Could not submit form data',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  async submitBySlug(req: Request, res: Response) {
+    try {
+      const { slug } = req.params;
+      const redirectParam = req.query.redirect as string;
+      const { device, ip, platform, host } = extractDeviceInfo(req);
+      console.log({ device, ip, platform });
+      const { bucket, submission } = await BucketService.submitSlug({
+        bucket: slug,
         data: req.body,
         meta: {
           device,
