@@ -29,6 +29,49 @@ class BucketService {
     return await bucket.save();
   }
 
+  async submitSlug({
+    bucket,
+    data,
+    meta,
+  }: {
+    bucket: string;
+    data: string;
+    meta?: {
+      device: string;
+      ip: string;
+      platform: string;
+      host: string;
+    };
+  }) {
+    const bucketDoc = await this.bucketModel.findOne({ slug: bucket });
+    if (!bucketDoc) {
+      throw new Error('Bucket not found');
+    }
+
+    if (!this.isInBucketWhiteList(bucketDoc, meta.host)) {
+      throw new Error('Domain not allowed');
+    }
+
+    // Implement the HTTP request here
+    // ...
+
+    const submission = await SubmissionService.createSubmission({
+      bucket,
+      data,
+      meta: {
+        country: 'result.country_name',
+        countryCode: 'result.country_code2',
+        isp: 'result.isp',
+        ip: meta.ip,
+        device: meta.device,
+        platform: meta.platform,
+      },
+    });
+    return {
+      bucket: bucketDoc.toObject(),
+      submission,
+    };
+  }
   async submit({
     bucket,
     data,
@@ -198,6 +241,31 @@ class BucketService {
     }
   }
 
+  async findOneBySlug(
+    slug: string,
+  ): Promise<(IBucket & { stats?: any }) | null> {
+    try {
+      const bucket = await this.bucketModel.findOne({ slug }).lean();
+      // .populate('submissions')
+
+      if (!bucket) {
+        return null;
+      }
+
+      const stats = {
+        ...(await SubmissionService.getBucketStats(bucket._id.toString())),
+        views: bucket.views,
+      };
+
+      return {
+        ...bucket,
+        stats,
+      };
+    } catch (err) {
+      throw new Error('Bucket not found');
+    }
+  }
+
   async findByAccessToken(token: string): Promise<IBucket & { stats?: any }> {
     try {
       const bucket = await this.bucketModel
@@ -262,6 +330,48 @@ class BucketService {
         },
       },
     });
+  }
+
+  async addViewToBucketBySlug(
+    slug: string,
+    data: {
+      ip: string;
+      device: string;
+      platform: string;
+    },
+  ): Promise<void> {
+    const bucket = await this.bucketModel.findOne({ slug }).exec();
+
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+
+    // Implement the HTTP request here to get location data based on the IP address
+    // Example:
+    // const result = await axios.get(`https://api.iplocation.net/?ip=${data.ip}`);
+    // const resultData = result.data;
+
+    const resultData = {
+      country_name: 'Country Name',
+      country_code2: 'CC',
+      isp: 'ISP Name',
+    }; // Replace with actual data from the HTTP request
+
+    await this.bucketModel.findOneAndUpdate(
+      { slug },
+      {
+        $push: {
+          views: {
+            country: resultData.country_name,
+            countryCode: resultData.country_code2,
+            isp: resultData.isp,
+            ip: data.ip,
+            device: data.device,
+            platform: data.platform,
+          },
+        },
+      },
+    );
   }
 
   async update(id: string, updateBucketDto: UpdateBucketDto, user: string) {
