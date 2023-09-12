@@ -608,6 +608,16 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@logdrop/express@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@logdrop/express/-/express-0.1.6.tgz#a0a03946c22bc5e3a208670c0051a364f6a3a6a7"
+  integrity sha512-Io7rtcnxHdidFt9Fp34q3nU9Nj1edDsqbCW9h3LjOgr7igMlD8WkEE7OXFtqUsF5siqFkRJ9yS8cKV5q5dBapQ==
+  dependencies:
+    axios "^1.5.0"
+    body-parser "^1.20.2"
+    express "^4.18.2"
+    request-ip "^3.3.0"
+
 "@logdrop/node@^0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@logdrop/node/-/node-0.0.3.tgz#c77b79797680d311a2bc24398f4efcf38048de47"
