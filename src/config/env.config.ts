@@ -33,4 +33,6 @@ export const SENDGRID_API_KEY = getEnv('SENDGRID_API_KEY')!;
 export const PASSAGE_APP_ID = getEnv('PASSAGE_APP_ID')!;
 export const PASSAGE_API_KEY = getEnv('PASSAGE_API_KEY')!;
 export const CLIENT_URL = getEnv('CLIENT_URL')!;
+export const LOGDROP_API_KEY = getEnv('LOGDROP_API_KEY')!;
+
 // export const STORAGE_KEY = getEnv("STORAGE_KEY")!;

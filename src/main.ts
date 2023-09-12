@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { createServer } from 'http';
+import { record } from '@logdrop/node';
 
 import express from 'express';
 const app = express();
@@ -12,7 +13,7 @@ import cookieParser from 'cookie-parser';
 import connectToDatabase from './config/database.config';
 import routes from './routes';
 // import { isWhitelisted } from "./modules/auth/auth.middleware";
-import { PORT, SENDGRID_API_KEY } from './config/env.config';
+import { LOGDROP_API_KEY, PORT, SENDGRID_API_KEY } from './config/env.config';
 
 /* Sendgrid implementation */
 sgMail.setApiKey(SENDGRID_API_KEY);
@@ -20,7 +21,7 @@ sgMail.setApiKey(SENDGRID_API_KEY);
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 // app.use(isWhitelisted);
-
+app.use(record(LOGDROP_API_KEY));
 // Cross Origin Resource Sharing
 app.use(cors());
 // app.use(cors(corsOptions));

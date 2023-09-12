@@ -14,6 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@logdrop/node": "^0.0.3",
     "@passageidentity/passage-node": "2.3.1",
     "@sendgrid/mail": "^7.7.0",
     "axios": "^1.4.0",
