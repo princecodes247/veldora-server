@@ -11,6 +11,7 @@ import hasAccessToken from './modules/bucket/guards/bucket-access-token.guard';
 
 const router: Router = Router();
 const openRouter: Router = Router();
+const open2Router: Router = Router();
 
 router.use('/auth', AuthRouter);
 router.use('/buckets', BucketRouter);
@@ -18,10 +19,11 @@ router.use('/users', UserRouter);
 router.use('/submissions', SubmissionRouter);
 
 openRouter.use('/buckets', OpenBucketRouter);
+open2Router.use('/buckets', OpenBucketRouter);
 
 const routes = (app: Application) => {
   app.use('/v1/g', openRouter);
-  app.use('/api/v1/g', openRouter);
+  app.use('/api/v1/g', open2Router);
   app.use('/api/v1', router);
   // app.use('/item-image', express.static(path.join(__dirname, '..', 'tmp')));
 
