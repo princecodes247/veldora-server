@@ -56,7 +56,7 @@ class BucketService {
     // ...
 
     const submission = await SubmissionService.createSubmission({
-      bucket,
+      bucket: bucketDoc._id,
       data,
       meta: {
         country: 'result.country_name',
