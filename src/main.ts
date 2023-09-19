@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { createServer } from 'http';
-import { record } from '@logdrop/express';
+import { record } from '@logdrop/node';
 
 import express from 'express';
 const app = express();
@@ -21,7 +21,11 @@ sgMail.setApiKey(SENDGRID_API_KEY);
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 // app.use(isWhitelisted);
-app.use(record(LOGDROP_API_KEY));
+app.use(
+  record(LOGDROP_API_KEY, {
+    exclude: ['/'],
+  }),
+);
 // Cross Origin Resource Sharing
 app.use(cors());
 // app.use(cors(corsOptions));
