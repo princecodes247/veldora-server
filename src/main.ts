@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { createServer } from 'http';
-import { record } from '@logdrop/node';
 
 import express from 'express';
 const app = express();
@@ -13,6 +12,7 @@ import cookieParser from 'cookie-parser';
 import connectToDatabase from './config/database.config';
 import routes from './routes';
 // import { isWhitelisted } from "./modules/auth/auth.middleware";
+import { record } from '@logdrop/node';
 import { LOGDROP_API_KEY, PORT, SENDGRID_API_KEY } from './config/env.config';
 
 /* Sendgrid implementation */

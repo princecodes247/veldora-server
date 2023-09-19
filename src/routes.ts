@@ -20,6 +20,7 @@ router.use('/submissions', SubmissionRouter);
 openRouter.use('/buckets', OpenBucketRouter);
 
 const routes = (app: Application) => {
+  app.use('/v1/g', openRouter);
   app.use('/api/v1/g', openRouter);
   app.use('/api/v1', router);
   // app.use('/item-image', express.static(path.join(__dirname, '..', 'tmp')));
