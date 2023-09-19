@@ -618,10 +618,10 @@
     express "^4.18.2"
     request-ip "^3.3.0"
 
-"@logdrop/node@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@logdrop/node/-/node-0.0.3.tgz#c77b79797680d311a2bc24398f4efcf38048de47"
-  integrity sha512-wDsrlyW9YjA20UmciFG1FUEO+ZUEVoH9o8hJwPgD1RyYFJC0ldUf9pYBRLvblbpm6tZDgLu/f7vstxrsRXSb/Q==
+"@logdrop/node@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@logdrop/node/-/node-0.0.5.tgz#0a185554cf3e986c0d10abdd64e5aa7bcca8c55e"
+  integrity sha512-kmsbQW4SyqDJLVsO/e49WTKEENXtdNPaSyA7pYoF4b/9BccfDdOLYLlUnZIdh7S0DPyISed7rw+VI/UC6U4shg==
   dependencies:
     axios "^1.5.0"
     body-parser "^1.20.2"
