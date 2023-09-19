@@ -5,19 +5,23 @@ const isAuth = () => {
   const passageAuth = new PassageAuth();
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = extractTokenFromHeader(req);
-      if (!token) {
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
-      }
+      let userID: string;
+      if (req.session.isAuthenticated) {
+        userID = req.session.user.userID;
+      } else {
+        const token = extractTokenFromHeader(req);
+        if (!token) {
+          res.status(401).json({ message: 'Unauthorized' });
+          return;
+        }
 
-      const userID = await passageAuth.authenticate(token);
-      console.log({ userID });
-      if (!userID) {
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
+        userID = await passageAuth.authenticate(token);
+        console.log({ userID });
+        if (!userID) {
+          res.status(401).json({ message: 'Unauthorized' });
+          return;
+        }
       }
-
       // User is authenticated
       const user = await passageAuth.getUser(userID);
       const { email, phone } = user;
@@ -29,9 +33,18 @@ const isAuth = () => {
         email,
         phone,
         metadata: {
-          username: user.user_metadata.username,
+          username: user.user_metadata.username.toString(),
         },
       };
+      req.session.user = {
+        userID,
+        email,
+        phone,
+        metadata: {
+          username: user.user_metadata.username.toString(),
+        },
+      };
+      req.session.isAuthenticated = true;
 
       next(); // Continue to the next middleware or route handler
     } catch {

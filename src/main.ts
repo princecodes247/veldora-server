@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { createServer } from 'http';
-import { record } from '@logdrop/express';
-
+import { record } from '@logdrop/node';
+import MongoStore from 'connect-mongo';
 import express from 'express';
 const app = express();
 
@@ -10,10 +10,18 @@ import cors from 'cors';
 // import { corsOptions } from './config';
 import sgMail from '@sendgrid/mail';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 import connectToDatabase from './config/database.config';
 import routes from './routes';
 // import { isWhitelisted } from "./modules/auth/auth.middleware";
-import { LOGDROP_API_KEY, PORT, SENDGRID_API_KEY } from './config/env.config';
+import {
+  COOKIE_SECRET,
+  DATABASE_URL,
+  LOGDROP_API_KEY,
+  PORT,
+  SENDGRID_API_KEY,
+  env,
+} from './config/env.config';
 
 /* Sendgrid implementation */
 sgMail.setApiKey(SENDGRID_API_KEY);
@@ -33,7 +41,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //middleware for cookies
-app.use(cookieParser());
+
+const sess = {
+  secret: COOKIE_SECRET,
+  saveUninitialized: false,
+  resave: false,
+  cookie: {
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+  },
+  store: MongoStore.create({ mongoUrl: DATABASE_URL, dbName: 'appSession' }),
+};
+
+if (env.isProd) {
+  app.set('trust proxy', 1); // trust first proxy
+  sess.cookie.secure = true; // serve secure cookies
+}
+
+app.use(session(sess));
 
 app.get('/', (req, res) => {
   res.send('Health Check');
