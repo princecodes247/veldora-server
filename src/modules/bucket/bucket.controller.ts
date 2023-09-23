@@ -122,6 +122,7 @@ class BucketController {
         status: StatusCodes.OK,
       });
     } catch (error) {
+      console.log({ error });
       return sendResponse({
         res,
         message: 'Could not fetch buckets',

@@ -4,7 +4,7 @@ import { Model, Document } from 'mongoose';
 import BucketModel, { IBucket } from './models/bucket.model';
 
 import { SubmissionService } from '../submission';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import {
   PaginationDto,
@@ -53,15 +53,24 @@ class BucketService {
     }
 
     // Implement the HTTP request here
-    // ...
+    const { data: result } = await axios.get<{
+      ip: string;
+      ip_number: string;
+      ip_version: number;
+      country_name: string;
+      country_code2: string;
+      isp: string;
+      response_code: '200';
+      response_message: string;
+    }>('https://api.iplocation.net/?ip=' + (meta?.ip ?? ''));
 
     const submission = await SubmissionService.createSubmission({
-      bucket,
+      bucket: bucketDoc._id,
       data,
       meta: {
-        country: 'result.country_name',
-        countryCode: 'result.country_code2',
-        isp: 'result.isp',
+        country: result.country_name,
+        countryCode: result.country_code2,
+        isp: result.isp,
         ip: meta.ip,
         device: meta.device,
         platform: meta.platform,

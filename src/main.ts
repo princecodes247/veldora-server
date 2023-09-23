@@ -29,7 +29,11 @@ sgMail.setApiKey(SENDGRID_API_KEY);
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 // app.use(isWhitelisted);
-app.use(record(LOGDROP_API_KEY));
+app.use(
+  record(LOGDROP_API_KEY, {
+    exclude: ['/'],
+  }),
+);
 // Cross Origin Resource Sharing
 app.use(cors());
 // app.use(cors(corsOptions));

@@ -44,7 +44,11 @@ BucketRouter.delete('/:bucketId', isAuth(), BucketController.remove);
 
 // Data collection routes
 BucketRouter.get('/:bucketId/view', BucketController.viewBucket);
-BucketRouter.post('/:bucketId', BucketController.submit);
+BucketRouter.post(
+  '/:bucketId',
+  //  isUserBucketWithId({ param: 'bucketId' }),
+  BucketController.submit,
+);
 
 // Open routes
 OpenBucketRouter.get(
