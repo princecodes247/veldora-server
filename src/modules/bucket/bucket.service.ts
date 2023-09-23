@@ -34,7 +34,7 @@ class BucketService {
     data,
     meta,
   }: {
-    bucket: string;
+    bucket: IBucket;
     data: string;
     meta?: {
       device: string;
@@ -43,14 +43,9 @@ class BucketService {
       host: string;
     };
   }) {
-    const bucketDoc = await this.bucketModel.findOne({ slug: bucket });
-    if (!bucketDoc) {
-      throw new Error('Bucket not found');
-    }
-
-    if (!this.isInBucketWhiteList(bucketDoc, meta.host)) {
-      throw new Error('Domain not allowed');
-    }
+    // if (!this.isInBucketWhiteList(bucketDoc, meta.host)) {
+    //   throw new Error('Domain not allowed');
+    // }
 
     // Implement the HTTP request here
     const { data: result } = await axios.get<{
@@ -60,12 +55,10 @@ class BucketService {
       country_name: string;
       country_code2: string;
       isp: string;
-      response_code: '200';
-      response_message: string;
     }>('https://api.iplocation.net/?ip=' + (meta?.ip ?? ''));
 
     const submission = await SubmissionService.createSubmission({
-      bucket: bucketDoc._id,
+      bucket: bucket._id,
       data,
       meta: {
         country: result.country_name,
@@ -77,7 +70,7 @@ class BucketService {
       },
     });
     return {
-      bucket: bucketDoc.toObject(),
+      bucket,
       submission,
     };
   }
@@ -401,14 +394,47 @@ class BucketService {
       );
     }
     // Update bucket name, description, customRedirect, responseStyle
-    await this.bucketModel
-      .findByIdAndUpdate(id, {
+    return await this.bucketModel.findByIdAndUpdate(
+      id,
+      {
         customRedirect,
         description,
         name,
         responseStyle,
-      })
-      .exec();
+      },
+      {
+        new: true,
+      },
+    );
+  }
+
+  async updateBucketStructure(
+    id: string,
+    structure: Array<{
+      name: string;
+      type?: string;
+    }>,
+    user: string,
+  ) {
+    const bucket = await this.bucketModel.findById(id).exec();
+    if (!bucket) {
+      throw new Error('Bucket not found');
+    }
+    if (bucket.owner.toString() !== user) {
+      throw new Error('You are not the owner of this bucket');
+    }
+    console.log({ structure });
+
+    // Update bucket structure
+    return await this.bucketModel.findByIdAndUpdate(
+      id,
+      {
+        structure: structure.length > 0 ? structure : undefined,
+      },
+      {
+        new: true,
+      },
+    );
   }
 
   async remove(id: string, user: string) {
@@ -474,7 +500,7 @@ class BucketService {
     console.log('Finished generating slugs for existing buckets.');
   }
 
-  private isInBucketWhiteList(bucket: IBucket, host: string) {
+  isInBucketWhiteList(bucket: IBucket, host: string) {
     if (bucket.whiteList.length === 0) {
       return true;
     }
