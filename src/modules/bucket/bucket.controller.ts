@@ -499,8 +499,8 @@ class BucketController {
       }
 
       console.log('data');
-      const clientURL = CLIENT_URL;
-      return res.redirect(clientURL + '/successful');
+      const clientURL = CLIENT_URL + '/successful';
+      return res.redirect(clientURL);
     } catch (error) {
       return sendResponse({
         res,

@@ -41,8 +41,14 @@ export const BucketStructureItemSchema = new Schema({
     default: SubmissionType.TEXT,
   },
   default: String,
-  required: Boolean,
-  unique: Boolean,
+  required: {
+    type: Boolean,
+    default: false,
+  },
+  unique: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 export const BucketSchema = new Schema<IBucket>({
