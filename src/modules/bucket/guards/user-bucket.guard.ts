@@ -40,10 +40,13 @@ export function isUserBucketWithId(target: { param?: string; query?: string }) {
   };
 }
 
-export function isUserBucketWithSlug(target: {
-  param?: string;
-  query?: string;
-}) {
+export function isUserBucketWithSlug(
+  target: {
+    param?: string;
+    query?: string;
+  },
+  checkUser: boolean = true,
+) {
   return async function (
     req: RequestWithAuth,
     res: Response,
@@ -63,7 +66,10 @@ export function isUserBucketWithSlug(target: {
       console.log({ slug, payload });
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
-      if (!payload || payload.owner.toString() !== req.user.userID.toString()) {
+      if (
+        checkUser &&
+        (!payload || payload.owner.toString() !== req.user.userID.toString())
+      ) {
         throw new Error('Unauthorized: You cannot access this bucket');
       }
       req['bucket'] = payload;

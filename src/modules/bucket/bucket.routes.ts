@@ -6,6 +6,7 @@ import {
   isUserBucketWithSlug,
 } from './guards/user-bucket.guard';
 import hasAccessToken from './guards/bucket-access-token.guard';
+import checkBucketSchema from './guards/bucket-schema.guard';
 
 const BucketRouter = express.Router();
 export const OpenBucketRouter = express.Router();
@@ -35,6 +36,12 @@ BucketRouter.get(
 );
 
 BucketRouter.patch('/:bucketId', isAuth(), BucketController.update);
+BucketRouter.patch(
+  '/:bucketId/update-structure',
+  isAuth(),
+  BucketController.updateBucketStructure,
+);
+
 BucketRouter.post(
   '/:bucketId/update-whitelist',
   isAuth(),
@@ -63,6 +70,12 @@ OpenBucketRouter.get(
 );
 
 OpenBucketRouter.get('/:slug/view', BucketController.viewBucketBySlug);
-OpenBucketRouter.post('/:slug', BucketController.submitBySlug);
+OpenBucketRouter.get('/:slug', BucketController.warnForGETRequestOnSubmit);
+OpenBucketRouter.post(
+  '/:slug',
+  isUserBucketWithSlug({ param: 'slug' }, false),
+  checkBucketSchema(),
+  BucketController.submitBySlug,
+);
 
 export default BucketRouter;
