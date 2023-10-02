@@ -7,12 +7,13 @@ import {
 } from './guards/user-bucket.guard';
 import hasAccessToken from './guards/bucket-access-token.guard';
 import checkBucketSchema from './guards/bucket-schema.guard';
+import { canCreateBucket } from './guards/create-bucket.guard';
 
 const BucketRouter = express.Router();
 export const OpenBucketRouter = express.Router();
 export const SubmitBucketRouter = express.Router();
 
-BucketRouter.post('/', isAuth(), BucketController.create);
+BucketRouter.post('/', isAuth(), canCreateBucket(), BucketController.create);
 BucketRouter.post(
   '/regenerate-access-token',
   isAuth(),

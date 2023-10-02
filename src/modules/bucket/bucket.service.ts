@@ -164,6 +164,15 @@ class BucketService {
     return { result: buckets, meta };
   }
 
+  async countUserBuckets(owner: string): Promise<number> {
+    try {
+      const total = await this.bucketModel.countDocuments({ owner });
+      return total;
+    } catch (error) {
+      return -1;
+    }
+  }
+
   async findAllUserBuckets(
     pagination: PaginationDto,
     owner: string,
