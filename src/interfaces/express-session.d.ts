@@ -6,7 +6,7 @@ declare module 'express-session' {
     user: {
       _id: mongoose.Types.ObjectId | string;
       email: string;
-      plan?: '';
+      plan?: string;
       username: string;
     };
     // Add any other custom properties you need

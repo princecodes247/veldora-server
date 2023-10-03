@@ -43,7 +43,7 @@ const UserSchema = new Schema(
     status: {
       type: String,
       enum: Object.values(UserStatus),
-      default: 'active',
+      default: 'pending',
     },
 
     metadata: {

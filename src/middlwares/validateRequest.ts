@@ -19,7 +19,10 @@ const validateRequest =
         res,
         status: 400,
         success: false,
-        message: e?.errors[0].message,
+        message:
+          e?.errors && e.errors.length > 0
+            ? e.errors[0]?.message
+            : 'Unknown error',
         error: e?.errors,
       });
     }

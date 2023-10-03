@@ -1,9 +1,5 @@
 import express from 'express';
 import UserController from './user.controller';
-import UserModel from './models/user.model';
-import generateSlug from '../../utils/generate-slug.util';
-import { users_former } from '../../constants';
-import { BucketModel } from '../bucket';
 import { isAuth } from '../auth/guards/auth.guard';
 
 const userRouter = express.Router();
