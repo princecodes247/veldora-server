@@ -313,6 +313,9 @@ class AuthController {
   logout(req: Request, res: Response) {
     // Clear the session token cookie to log the user out
     res.clearCookie(COOKIE_TOKEN);
+    req.session.destroy(function (err) {
+      // cannot access session here
+    });
     sendResponse({
       res,
       message: 'Logout successful',
