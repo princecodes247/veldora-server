@@ -8,6 +8,7 @@ import { SubmissionService } from '../submission';
 import { RequestWithAuth } from '../auth/auth.type';
 import { RequestWithBucket } from './bucket.type';
 import { CLIENT_URL } from '../../config/env.config';
+import { extractDeviceInfo } from '../../utils/extract-device-info.util';
 
 class BucketController {
   async create(req: RequestWithAuth, res: Response) {
@@ -278,6 +279,34 @@ class BucketController {
     }
   }
 
+  async updateBucketStructure(req: RequestWithAuth, res: Response) {
+    try {
+      const { bucketId } = req.params;
+      const { structure } = req.body;
+      const result = await BucketService.updateBucketStructure(
+        bucketId,
+        structure,
+        req.user.userID,
+      );
+
+      return sendResponse({
+        res,
+        message: 'Bucket Structure Updated',
+        success: true,
+        data: result,
+        status: StatusCodes.CREATED,
+      });
+    } catch (error) {
+      return sendResponse({
+        res,
+        message: 'Failed to update bucket structure',
+        success: false,
+        error: error?.message ?? error,
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
   async viewBucket(req: Request, res: Response) {
     try {
       const { bucketId } = req.params;
@@ -366,6 +395,17 @@ class BucketController {
     }
   }
 
+  async warnForGETRequestOnSubmit(req: Request, res: Response) {
+    try {
+      return sendResponse({
+        res,
+        message: 'This should be a POST request',
+        success: true,
+        status: StatusCodes.OK,
+      });
+    } catch (error) {}
+  }
+
   async submit(req: Request, res: Response) {
     try {
       const { bucketId } = req.params;
@@ -415,14 +455,22 @@ class BucketController {
     }
   }
 
-  async submitBySlug(req: Request, res: Response) {
+  async submitBySlug(req: RequestWithBucket, res: Response) {
     try {
       const { slug } = req.params;
       const redirectParam = req.query.redirect as string;
       const { device, ip, platform, host } = extractDeviceInfo(req);
       console.log({ device, ip, platform });
+      if (!req.bucket) {
+        return sendResponse({
+          res,
+          message: 'No Bucket attached',
+          success: false,
+          status: StatusCodes.NOT_FOUND,
+        });
+      }
       const { bucket, submission } = await BucketService.submitSlug({
-        bucket: slug,
+        bucket: req.bucket,
         data: req.body,
         meta: {
           device,
@@ -451,8 +499,8 @@ class BucketController {
       }
 
       console.log('data');
-      const clientURL = CLIENT_URL;
-      return res.redirect(clientURL + '/successful');
+      const clientURL = CLIENT_URL + '/successful';
+      return res.redirect(clientURL);
     } catch (error) {
       return sendResponse({
         res,
@@ -493,40 +541,6 @@ class BucketController {
       });
     }
   }
-}
-
-function extractDeviceInfo(req: Request): {
-  ip: string;
-  device: string;
-  platform: string;
-  host: string;
-} {
-  // Retrieve the device and country information from the request, for example:
-  const device =
-    req.header('User-Agent') || req.header('sec-ch-ua') || 'Unknown Device';
-  const ip = req.header('true-client-ip') || 'Unknown IP';
-  const host = req.header('host') || 'Unknown Host';
-  const platform = parsePlatform(device);
-  console.log({ header: req.headers });
-  return { platform, ip, device, host };
-}
-
-function parsePlatform(userAgent: string): string {
-  let platform = 'Unknown Platform';
-
-  if (userAgent.includes('Windows')) {
-    platform = 'Windows';
-  } else if (userAgent.includes('Macintosh')) {
-    platform = 'Macintosh';
-  } else if (userAgent.includes('Linux')) {
-    platform = 'Linux';
-  } else if (userAgent.includes('Android')) {
-    platform = 'Android';
-  } else if (userAgent.includes('iOS')) {
-    platform = 'iOS';
-  }
-
-  return platform;
 }
 
 export default new BucketController();

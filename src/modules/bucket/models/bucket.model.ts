@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 import slug from 'mongoose-slug-generator';
 import generateSlug from '../../../utils/generate-slug.util';
+import { SubmissionType } from '../bucket.type';
 
 mongoose.plugin(slug);
 export interface IBucket extends Document {
@@ -19,9 +20,10 @@ export interface IBucket extends Document {
   responseStyle: 'default' | 'json' | 'params' | 'custom';
   structure: Array<{
     name: string;
-    type: string;
-    default: string;
-    required: boolean;
+    type?: SubmissionType;
+    default?: string;
+    unique?: boolean;
+    required?: boolean;
   }>;
   customRedirect: string;
   accessToken: string;
@@ -30,6 +32,24 @@ export interface IBucket extends Document {
   // owner: Types.ObjectId;
   createdAt: Date;
 }
+
+export const BucketStructureItemSchema = new Schema({
+  name: String,
+  type: {
+    type: String,
+    enum: Object.values(SubmissionType),
+    default: SubmissionType.TEXT,
+  },
+  default: String,
+  required: {
+    type: Boolean,
+    default: false,
+  },
+  unique: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 export const BucketSchema = new Schema<IBucket>({
   name: { type: String, required: true },
@@ -51,14 +71,7 @@ export const BucketSchema = new Schema<IBucket>({
     enum: ['default', 'json', 'params', 'custom'],
     default: 'default',
   },
-  structure: [
-    {
-      name: String,
-      type: String,
-      default: String,
-      required: Boolean,
-    },
-  ],
+  structure: [BucketStructureItemSchema],
   customRedirect: { type: String },
   accessToken: { type: String, default: '' },
   publicKey: { type: String, default: '' },
