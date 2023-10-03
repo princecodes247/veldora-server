@@ -1,11 +1,11 @@
 import express, { Router } from 'express';
 
 import SubmissionController from './submission.controller';
-import { isAuth } from '../auth';
 import {
   isUserBucketWithId,
   isUserBucketWithSlug,
 } from '../bucket/guards/user-bucket.guard';
+import { isAuth } from '../auth/guards/auth.guard';
 
 const SubmissionRouter: Router = express.Router();
 

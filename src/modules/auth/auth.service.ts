@@ -1,10 +1,11 @@
 import { CreateUserDto } from './../user/dto/create-user.dto';
-import UserService from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 
-import { IUser } from '../user/models/user.model';
+import { UserModel, BaseUser, IUser, UserService } from '../user';
 import PassageAuth from '../../utils/passage-auth.util';
 import JWT from '../../utils/jwt.util';
+import { OTPToken, OTPTokenService } from '../otpToken';
+import { sendEmail } from '../../utils/mailer';
 
 class AuthService {
   constructor(private passageAuth: PassageAuth) {}
@@ -16,8 +17,8 @@ class AuthService {
     };
   }
 
-  async signIn(username: string, pass: string): Promise<any> {
-    const user = await UserService.findOneByUsername(username);
+  async signIn(email: string, pass: string) {
+    const user = await UserService.findOneByEmail(email);
     console.log({ user });
     if (!user) {
       return null;
@@ -26,7 +27,7 @@ class AuthService {
     if (!match) {
       return null;
     }
-    const result = user.toObject();
+    const result = user.toObject<BaseUser>();
 
     return {
       ...result,
@@ -62,6 +63,54 @@ class AuthService {
       // authentication failed
       console.log(e);
     }
+  }
+
+  generateOTPService() {
+    const code = Array.from({ length: 6 }, () =>
+      Math.floor(Math.random() * 10),
+    ).join('');
+    return code;
+  }
+
+  async sendOTPService(email: string, OTP: string) {
+    const msg = {
+      to: email,
+      from: 'spark@veldora.io',
+      subject: 'Verify your email',
+      text: `Your OTP code is ${OTP}`,
+    };
+
+    try {
+      await sendEmail(msg);
+      console.log(`OTP sent to ${email}`);
+    } catch (error) {
+      console.error(error + 'Error!');
+      // throw new Error("Failed to send OTP code");
+    }
+  }
+
+  async verifyUserEmail(userId: string, token: string): Promise<IUser | false> {
+    console.log('verifyUserEmail', userId, token);
+    const isVerified = OTPTokenService.verifyOTP({
+      token,
+      type: 'emailVerification',
+      userId,
+    });
+
+    if (!isVerified) {
+      return false;
+    }
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { email_verified: true },
+      { new: true },
+    );
+
+    return updatedUser;
+  }
+
+  verifyPasswordReset(token: string): Promise<OTPToken | null> {
+    return OTPTokenService.getOTP(token, 'passwordReset');
   }
 }
 

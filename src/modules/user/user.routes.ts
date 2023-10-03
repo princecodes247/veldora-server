@@ -1,9 +1,8 @@
 import express from 'express';
 import UserController from './user.controller';
-import { isAuth } from '../auth';
+import { isAuth } from '../auth/guards/auth.guard';
 
 const userRouter = express.Router();
-
 userRouter.post('/', isAuth(), UserController.create);
 userRouter.get('/', isAuth(), UserController.findAll);
 userRouter.get('/me', isAuth(), UserController.findUserProfile);

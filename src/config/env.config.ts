@@ -29,10 +29,15 @@ export const env = {
 export const PORT = getEnv('PORT')!;
 export const DATABASE_URL = getEnv('DATABASE_URL')!;
 export const JWT_SECRET_KEY = getEnv('JWT_SECRET_KEY')!;
+export const COOKIE_SECRET = getEnv('COOKIE_SECRET');
 export const SENDGRID_API_KEY = getEnv('SENDGRID_API_KEY')!;
 export const PASSAGE_APP_ID = getEnv('PASSAGE_APP_ID')!;
 export const PASSAGE_API_KEY = getEnv('PASSAGE_API_KEY')!;
 export const CLIENT_URL = getEnv('CLIENT_URL')!;
 export const LOGDROP_API_KEY = getEnv('LOGDROP_API_KEY')!;
+export const MAIL_SMTP = getEnv('MAIL_SMTP')!;
+export const MAIL_PORT = getEnv('MAIL_PORT')!;
+export const MAIL_PASSWORD = getEnv('MAIL_PASSWORD')!;
+export const MAIL_USER = getEnv('MAIL_USER')!;
 
 // export const STORAGE_KEY = getEnv("STORAGE_KEY")!;
