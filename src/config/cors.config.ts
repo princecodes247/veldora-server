@@ -1,17 +1,15 @@
 import allowedOrigins from './origins.config';
 
 const corsOptions = {
-  origin: (
-    origin?: string,
-    callback: (x: any, y?: boolean) => void = () => {},
-  ) => {
-    if (allowedOrigins.indexOf(origin ?? '') !== -1 || !origin) {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS.'));
+      callback(new Error('Not allowed by CORS'));
     }
   },
-  optionsSuccessStatus: 200,
+  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+  credentials: true,
 };
 
 export default corsOptions;
