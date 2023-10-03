@@ -4,4 +4,4 @@ export const jwtConstants = {
   secret: JWT_SECRET_KEY,
 };
 
-export const COOKIE_TOKEN = 'USER_TOKEN';
+export const COOKIE_TOKEN = 'VELD_USER_TOKEN';

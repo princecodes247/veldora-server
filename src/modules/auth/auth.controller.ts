@@ -32,6 +32,7 @@ class AuthController {
         httpOnly: true,
         secure: true, // Use 'true' in production with HTTPS
         sameSite: 'lax', // Adjust as needed for your application
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
         // other cookie options (e.g., 'maxAge', 'path', 'domain', etc.)
       });
       req.session.isAuthenticated = true;
