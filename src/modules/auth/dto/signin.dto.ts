@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 export interface SigninRequestDto {
-  username: string;
+  email: string;
 
   password: string;
 }

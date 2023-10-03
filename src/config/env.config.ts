@@ -35,5 +35,9 @@ export const PASSAGE_APP_ID = getEnv('PASSAGE_APP_ID')!;
 export const PASSAGE_API_KEY = getEnv('PASSAGE_API_KEY')!;
 export const CLIENT_URL = getEnv('CLIENT_URL')!;
 export const LOGDROP_API_KEY = getEnv('LOGDROP_API_KEY')!;
+export const MAIL_SMTP = getEnv('MAIL_SMTP')!;
+export const MAIL_PORT = getEnv('MAIL_PORT')!;
+export const MAIL_PASSWORD = getEnv('MAIL_PASSWORD')!;
+export const MAIL_USER = getEnv('MAIL_USER')!;
 
 // export const STORAGE_KEY = getEnv("STORAGE_KEY")!;

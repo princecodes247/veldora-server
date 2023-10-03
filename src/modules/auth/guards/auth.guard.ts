@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import PassageAuth from '../../../utils/passage-auth.util';
 
-const isAuth = () => {
-  const passageAuth = new PassageAuth();
+export const isAuth = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       let userID: string;
+      console.log({ session: req.session });
       if (req.session.isAuthenticated) {
-        userID = req.session.user.userID;
+        userID = req.session.user._id.toString();
       } else {
         const token = extractTokenFromHeader(req);
         if (!token) {
@@ -15,48 +14,28 @@ const isAuth = () => {
           return;
         }
 
-        userID = await passageAuth.authenticate(token);
-        console.log({ userID });
-        if (!userID) {
-          res.status(401).json({ message: 'Unauthorized' });
-          return;
-        }
+        // userID = await passageAuth.authenticate(token);
+        // console.log({ userID });
+        // if (!userID) {
+        // }
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
       }
       // User is authenticated
-      const user = await passageAuth.getUser(userID);
-      const { email, phone } = user;
-      const identifier = email ? email : phone;
-
       // Assign user data to the request object
-      req['user'] = {
-        userID,
-        email,
-        phone,
-        metadata: {
-          username: user.user_metadata.username.toString(),
-        },
-      };
-      req.session.user = {
-        userID,
-        email,
-        phone,
-        metadata: {
-          username: user.user_metadata.username.toString(),
-        },
-      };
-      req.session.isAuthenticated = true;
+      req['user'] = { ...req.session.user, userID: req.session.user._id };
 
       next(); // Continue to the next middleware or route handler
     } catch {
-      res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorizedend' });
       return;
     }
   };
 };
 
-const extractTokenFromHeader = (request: Request): string | undefined => {
+export const extractTokenFromHeader = (
+  request: Request,
+): string | undefined => {
   const [type, token] = request.headers.authorization?.split(' ') ?? [];
   return type === 'Bearer' ? token : undefined;
 };
-
-export default isAuth;

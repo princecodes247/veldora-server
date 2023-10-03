@@ -1,14 +1,13 @@
 import { Session } from 'express-session';
+import mongoose from 'mongoose';
 declare module 'express-session' {
   interface Session {
     isAuthenticated: boolean;
     user: {
-      userID: string;
+      _id: mongoose.Types.ObjectId | string;
       email: string;
-      phone: string;
-      metadata: {
-        username: string;
-      };
+      plan?: '';
+      username: string;
     };
     // Add any other custom properties you need
   }

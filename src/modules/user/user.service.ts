@@ -1,4 +1,3 @@
-import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from './dto/pagination.dto';
@@ -6,9 +5,6 @@ import UserModel, { IUser } from './models/user.model';
 
 class UserService {
   async create(createUserDto: CreateUserDto): Promise<IUser> {
-    const salt = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(createUserDto.password, salt);
-    createUserDto.password = hashPassword;
     const createdUser = new UserModel(createUserDto);
     return await createdUser.save();
   }
@@ -72,6 +68,20 @@ class UserService {
 
   async remove(id: string): Promise<void> {
     // You should implement your remove logic here based on your requirements.
+  }
+
+  async changePassword(id: string, newPassword: string) {
+    console.log({ id, newPassword });
+    const user = await UserModel.findById(id);
+    console.log({ user });
+    if (!user) {
+      console.log('{user}');
+      return;
+    }
+    user.password = newPassword;
+    const { password, ...updatedUser } = (await user.save()).toObject();
+    console.log({ password, updatedUser });
+    return updatedUser;
   }
 }
 

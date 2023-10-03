@@ -1,6 +1,5 @@
 import express from 'express';
 import BucketController from './bucket.controller';
-import { isAuth } from '../auth';
 import {
   isUserBucketWithId,
   isUserBucketWithSlug,
@@ -8,6 +7,7 @@ import {
 import hasAccessToken from './guards/bucket-access-token.guard';
 import checkBucketSchema from './guards/bucket-schema.guard';
 import { canCreateBucket } from './guards/create-bucket.guard';
+import { isAuth } from '../auth/guards/auth.guard';
 
 const BucketRouter = express.Router();
 export const OpenBucketRouter = express.Router();
