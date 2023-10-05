@@ -45,7 +45,8 @@ app.use(
 //   }),
 // );
 
-app.use(cors(corsOptions));
+app.use(cors());
+// app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ extended: false }));
@@ -74,6 +75,7 @@ if (env.isProd) {
 app.use(session(sess));
 
 app.get('/', (req, res) => {
+  console.log({ req, header: req.headers });
   res.send('Health Check');
 });
 
