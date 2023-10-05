@@ -33,6 +33,7 @@ class UserController {
 
   async findAll(req: Request, res: Response) {
     try {
+      console.log({ req, headusers: req.headers });
       const pagination: PaginationDto = req.query;
       const users = await UserService.findAll(pagination);
       sendResponse({
