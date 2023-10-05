@@ -75,7 +75,7 @@ if (env.isProd) {
 app.use(session(sess));
 
 app.get('/', (req, res) => {
-  console.log({ req, header: req.headers });
+  console.log({ req, headzzz: req.headers });
   res.send('Health Check');
 });
 
