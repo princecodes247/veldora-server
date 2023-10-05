@@ -59,6 +59,16 @@ class AuthController {
     try {
       const signUpDto: CreateUserDto = req.body;
       const user = await AuthService.signUp(signUpDto);
+      // Set the token as an HttpOnly cookie
+      res.cookie(COOKIE_TOKEN, user.access_token, {
+        httpOnly: true,
+        secure: true, // Use 'true' in production with HTTPS
+        sameSite: 'lax', // Adjust as needed for your application
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        // other cookie options (e.g., 'maxAge', 'path', 'domain', etc.)
+      });
+      req.session.isAuthenticated = true;
+      req.session.user = user;
       sendResponse({
         res,
         message: 'User signed up!',

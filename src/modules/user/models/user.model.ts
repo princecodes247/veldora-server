@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import mongoose, { Document, Schema } from 'mongoose';
+import generateSlug from '../../../utils/generate-slug.util';
 enum UserStatus {
   ACTIVE = 'active',
   PENDING = 'pending',
@@ -22,13 +23,11 @@ export interface IUser extends BaseUser, Document {}
 
 const UserSchema = new Schema(
   {
-    username: { type: String, required: true, unique: true },
-    oldUserId: { type: String, required: true, unique: true },
+    username: { type: String, unique: true },
+    oldUserId: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    // oldPassword: {
 
-    // },
     email_verified: {
       type: Boolean,
       default: false,
@@ -73,6 +72,25 @@ UserSchema.pre<IUser>('save', async function (next) {
   }
 });
 
+UserSchema.pre('save', async function (next) {
+  const doc = this;
+
+  // Convert the name field to a slug
+  const username = doc.email.trim().toLowerCase().split('@')[0];
+
+  // Check if the slug is already taken
+  const existingDoc = await mongoose.model('User').findOne({ username });
+
+  // If the slug is already taken, append a unique ID using shortid
+  if (existingDoc) {
+    const uniqueId = await generateSlug();
+    console.log({ uniqueId });
+    doc.username = `${username}${uniqueId}`;
+  } else {
+    doc.username = username;
+  }
+  next();
+});
 const UserModel = mongoose.model<IUser>('User', UserSchema);
 
 export default UserModel;

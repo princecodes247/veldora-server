@@ -43,7 +43,7 @@ class AuthService {
     if (isTaken) {
       throw new Error(isTaken);
     }
-    const user = await UserService.create(signUpDTO);
+    const user = await UserService.create({ ...signUpDTO, username: '' });
     const { password: pass, ...result } = user.toObject();
 
     return { ...result, ...this.generateToken(user) };
