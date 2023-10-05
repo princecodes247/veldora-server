@@ -30,22 +30,6 @@ sgMail.setApiKey(SENDGRID_API_KEY);
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 // app.use(isWhitelisted);
-// app.use(
-//   record(LOGDROP_API_KEY, {
-//     exclude: ['/'],
-//   }),
-// );
-// Cross Origin Resource Sharing
-// app.options('*', cors());
-// app.use(
-//   cors({
-//     origin: 'http://localhost:3000',
-//     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
-//     credentials: true,
-//   }),
-// );
-
-// app.use(cors());
 app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
@@ -53,7 +37,11 @@ app.use(express.urlencoded({ extended: false }));
 
 // built-in middleware for json
 app.use(express.json());
-
+app.use(
+  record(LOGDROP_API_KEY, {
+    exclude: ['/'],
+  }),
+);
 //middleware for cookies
 
 const sess = {
