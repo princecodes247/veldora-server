@@ -22,6 +22,8 @@ import {
   SENDGRID_API_KEY,
   env,
 } from './config/env.config';
+import { corsOptions } from './config';
+// import allowedOrigins from './config/origins.config';
 
 /* Sendgrid implementation */
 sgMail.setApiKey(SENDGRID_API_KEY);
@@ -35,8 +37,16 @@ app.use(
   }),
 );
 // Cross Origin Resource Sharing
-app.use(cors());
-// app.use(cors(corsOptions));
+// app.options('*', cors());
+// app.use(
+//   cors({
+//     origin: 'http://localhost:3000',
+//     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+//     credentials: true,
+//   }),
+// );
+
+app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ extended: false }));

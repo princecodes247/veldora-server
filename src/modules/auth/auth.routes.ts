@@ -3,6 +3,7 @@ import express from 'express';
 import AuthController from './auth.controller';
 import validateRequest from '../../middlwares/validateRequest';
 import {
+  loginUserSchema,
   registerUserSchema,
   requestEmailOTPSchema,
   verifyEmailOTPSchema,
@@ -16,12 +17,17 @@ import {
 const AuthRouter = express.Router();
 
 // Define routes
-AuthRouter.post('/login', AuthController.signIn);
+AuthRouter.post(
+  '/login',
+  validateRequest(loginUserSchema),
+  AuthController.signIn,
+);
 AuthRouter.post(
   '/register',
   validateRequest(registerUserSchema),
   AuthController.signUp,
 );
+AuthRouter.post('/logout', AuthController.logout);
 AuthRouter.post('/verify', AuthController.verifyAuth);
 
 AuthRouter.post(
@@ -29,7 +35,11 @@ AuthRouter.post(
   validateRequest(requestEmailOTPSchema),
   AuthController.sendEmailOTP,
 );
-AuthRouter.post('/otp/resend', AuthController.resendOTP);
+AuthRouter.post(
+  '/otp/resend',
+  validateRequest(requestChangePasswordSchema),
+  AuthController.resendOTP,
+);
 AuthRouter.post(
   '/otp/email/verify',
   validateRequest(verifyEmailOTPSchema),
