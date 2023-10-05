@@ -23,7 +23,6 @@ import {
   env,
 } from './config/env.config';
 import { corsOptions } from './config';
-// import allowedOrigins from './config/origins.config';
 
 /* Sendgrid implementation */
 sgMail.setApiKey(SENDGRID_API_KEY);

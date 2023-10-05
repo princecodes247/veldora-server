@@ -37,7 +37,7 @@ AuthRouter.post(
 );
 AuthRouter.post(
   '/otp/resend',
-  validateRequest(requestChangePasswordSchema),
+  validateRequest(requestEmailOTPSchema),
   AuthController.resendOTP,
 );
 AuthRouter.post(
