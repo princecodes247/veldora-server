@@ -314,13 +314,16 @@ class AuthController {
     // Clear the session token cookie to log the user out
     res.clearCookie(COOKIE_TOKEN);
     req.session.destroy(function (err) {
-      // cannot access session here
-    });
-    sendResponse({
-      res,
-      message: 'Logout successful',
-      success: true,
-      status: StatusCodes.OK,
+      if (err) {
+        console.log({ err });
+      } else {
+        sendResponse({
+          res,
+          message: 'Logout successful',
+          success: true,
+          status: StatusCodes.OK,
+        });
+      }
     });
   }
 }

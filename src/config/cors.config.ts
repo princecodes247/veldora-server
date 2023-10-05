@@ -2,6 +2,7 @@ import allowedOrigins from './origins.config';
 
 const corsOptions = {
   origin: function (origin, callback) {
+    console.log({ origin });
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
