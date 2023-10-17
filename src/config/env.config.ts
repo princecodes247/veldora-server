@@ -45,5 +45,3 @@ export const MAIL_USER = getEnv('MAIL_USER')!;
 // Links to frontend for webhooks
 export const EMAIL_VERIFICATION_URL = getEnv('EMAIL_VERIFICATION_URL')!;
 export const FORGOT_PASSWORD_URL = getEnv('FORGOT_PASSWORD_URL')!;
-
-// export const STORAGE_KEY = getEnv("STORAGE_KEY")!;

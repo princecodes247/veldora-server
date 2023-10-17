@@ -60,7 +60,7 @@ class ForgotPasswordController {
         'passwordReset',
       );
       let token = '';
-      if (!existingCode) {
+      if (existingCode) {
         token = existingCode.token;
       } else {
         const user = await UserService.findOneByEmail(email);
@@ -103,23 +103,32 @@ class ForgotPasswordController {
     }
   }
   async verifyPasswordReset(req: Request, res: Response) {
-    const { otp } = req.body;
+    try {
+      const { otp } = req.body;
 
-    const isVerified = await AuthService.verifyPasswordReset(otp);
-    if (isVerified) {
-      console.log('OTP verified successfully');
+      const isVerified = await AuthService.verifyPasswordReset(otp);
+      if (isVerified) {
+        console.log('OTP verified successfully');
+        sendResponse({
+          res,
+          status: StatusCodes.OK,
+          message: 'OTP verified successfully',
+          success: true,
+        });
+      } else {
+        console.log('Invalid or expired token');
+        sendResponse({
+          res,
+          status: StatusCodes.BAD_REQUEST,
+          message: 'Invalid or expired token',
+          success: false,
+        });
+      }
+    } catch (error) {
       sendResponse({
         res,
-        status: StatusCodes.OK,
-        message: 'OTP verified successfully',
-        success: true,
-      });
-    } else {
-      console.log('Invalid or expired token');
-      sendResponse({
-        res,
-        status: StatusCodes.BAD_REQUEST,
-        message: 'Invalid or expired token',
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: 'Could not complete request',
         success: false,
       });
     }
@@ -141,9 +150,6 @@ class ForgotPasswordController {
 
       const user = UserService.changePassword(otpToken.userId, newPassword);
       if (!user) {
-        // return res
-        //   .status(404)
-        //   .send({ error: "No user registered with that email or phone number" });
         return sendResponse({
           res,
           status: StatusCodes.NOT_FOUND,
