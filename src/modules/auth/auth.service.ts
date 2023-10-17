@@ -6,6 +6,10 @@ import PassageAuth from '../../utils/passage-auth.util';
 import JWT from '../../utils/jwt.util';
 import { OTPToken, OTPTokenService } from '../otpToken';
 import { sendEmail } from '../../utils/mailer';
+import {
+  EMAIL_VERIFICATION_URL,
+  FORGOT_PASSWORD_URL,
+} from '../../config/env.config';
 
 class AuthService {
   constructor(private passageAuth: PassageAuth) {}
@@ -89,19 +93,49 @@ class AuthService {
     }
   }
 
-  async verifyUserEmail(userId: string, token: string): Promise<IUser | false> {
-    console.log('verifyUserEmail', userId, token);
-    const isVerified = OTPTokenService.verifyOTP({
-      token,
-      type: 'emailVerification',
-      userId,
-    });
+  async sendEmailVerificationService(email: string, OTP: string) {
+    const msg = {
+      to: email,
+      from: 'spark@veldora.io',
+      subject: 'Verify your email',
+      text: `Click this link to verify your veldora account ${EMAIL_VERIFICATION_URL}/${OTP}`,
+    };
 
-    if (!isVerified) {
+    try {
+      await sendEmail(msg);
+      console.log(`OTP sent to ${email}`);
+    } catch (error) {
+      console.error(error + 'Error!');
+      // throw new Error("Failed to send OTP code");
+    }
+  }
+
+  async sendPasswordResetService(email: string, OTP: string) {
+    const msg = {
+      to: email,
+      from: 'spark@veldora.io',
+      subject: 'Reset your password',
+      text: `Click this link to reset your password ${FORGOT_PASSWORD_URL}/${OTP}`,
+    };
+
+    try {
+      await sendEmail(msg);
+      console.log(`OTP sent to ${email}`);
+    } catch (error) {
+      console.error(error + 'Error!');
+      // throw new Error("Failed to send OTP code");
+    }
+  }
+
+  async verifyUserEmail(token: string): Promise<IUser | false> {
+    console.log('verifyUserEmail', token);
+    const otp = await OTPTokenService.getOTP(token, 'emailVerification');
+
+    if (!otp) {
       return false;
     }
     const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
+      otp.userId,
       { email_verified: true },
       { new: true },
     );
@@ -109,7 +143,7 @@ class AuthService {
     return updatedUser;
   }
 
-  verifyPasswordReset(token: string): Promise<OTPToken | null> {
+  verifyPasswordReset(token: string) {
     return OTPTokenService.getOTP(token, 'passwordReset');
   }
 }

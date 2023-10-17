@@ -38,41 +38,11 @@ export const loginUserSchema = object({
   }),
 });
 
-export const requestEmailOTPSchema = object({
+export const requestEmailVerificationSchema = object({
   body: object({
     email: string({
       required_error: 'Email is required',
     }).email('Not a valid email'),
-  }),
-});
-
-export const verifyEmailOTPSchema = object({
-  body: object({
-    email: string({
-      required_error: 'Email is required',
-    }).email('Not a valid email'),
-    token: string({
-      required_error: 'Token is required',
-    }),
-  }),
-});
-
-export const requestPhoneOTPSchema = object({
-  body: object({
-    phone: string({
-      required_error: 'Phone is required',
-    }),
-  }),
-});
-
-export const verifyPhoneOTPSchema = object({
-  body: object({
-    phone: string({
-      required_error: 'Phone is required',
-    }),
-    token: string({
-      required_error: 'Token is required',
-    }),
   }),
 });
 
@@ -80,5 +50,3 @@ export type RegisterUserInput = Omit<
   TypeOf<typeof registerUserSchema>,
   'body.passwordConfirmation'
 >;
-
-export type VerifyEmailOTPInput = TypeOf<typeof verifyEmailOTPSchema>;

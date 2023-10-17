@@ -1,12 +1,12 @@
 // auth.routes.ts
 import express from 'express';
 import AuthController from './auth.controller';
+import ForgotPasswordController from './forgot-password.controller';
 import validateRequest from '../../middlwares/validateRequest';
 import {
   loginUserSchema,
   registerUserSchema,
-  requestEmailOTPSchema,
-  verifyEmailOTPSchema,
+  requestEmailVerificationSchema,
 } from './validations/register.validation';
 import {
   changePasswordSchema,
@@ -31,37 +31,32 @@ AuthRouter.post('/logout', AuthController.logout);
 AuthRouter.post('/verify', AuthController.verifyAuth);
 
 AuthRouter.post(
-  '/otp/email',
-  validateRequest(requestEmailOTPSchema),
-  AuthController.sendEmailOTP,
+  '/email-verification',
+  validateRequest(requestEmailVerificationSchema),
+  AuthController.sendEmailVerification,
 );
 AuthRouter.post(
-  '/otp/resend',
-  validateRequest(requestEmailOTPSchema),
-  AuthController.resendOTP,
-);
-AuthRouter.post(
-  '/otp/email/verify',
-  validateRequest(verifyEmailOTPSchema),
+  '/email-verification/verify',
+  validateRequest(requestEmailVerificationSchema),
   AuthController.verifyEmailOTP,
 );
 
 AuthRouter.post(
-  '/password/recover',
+  '/forgot-password',
   validateRequest(requestChangePasswordSchema),
-  AuthController.requestPasswordReset,
+  ForgotPasswordController.resendPasswordReset,
 );
 
 AuthRouter.post(
-  '/password/verify',
+  '/forgot-password/verify',
   validateRequest(verifyChangePasswordRequestSchema),
-  AuthController.verifyPasswordReset,
+  ForgotPasswordController.verifyPasswordReset,
 );
 
 AuthRouter.post(
-  '/password/reset',
+  '/forgot-password/reset',
   validateRequest(changePasswordSchema),
-  AuthController.resetPassword,
+  ForgotPasswordController.resetPassword,
 );
 
 export default AuthRouter;

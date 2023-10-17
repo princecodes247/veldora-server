@@ -134,7 +134,7 @@ class AuthController {
     }
   }
 
-  async sendEmailOTP(req: Request, res: Response) {
+  async sendEmailVerification(req: Request, res: Response) {
     const { email } = req.body;
 
     try {
@@ -148,13 +148,13 @@ class AuthController {
         });
       }
 
-      let OTP = await OTPTokenService.generateOTP(
+      let { token } = await OTPTokenService.generateUUID(
         user._id,
         'emailVerification',
       );
-      console.log({ OTP });
+      console.log({ token });
 
-      AuthService.sendOTPService(email, OTP);
+      AuthService.sendEmailVerificationService(email, token);
       // return OTP;
       sendResponse({
         res,
@@ -179,20 +179,9 @@ class AuthController {
     },
     res: Response,
   ) {
-    const { token, email } = req.body;
+    const { token } = req.body;
 
-    const user = await UserService.findOneByEmail(email);
-
-    if (!user) {
-      return sendResponse({
-        res,
-        status: StatusCodes.NOT_FOUND,
-        message: 'User does not exist',
-        success: false,
-      });
-    }
-
-    const isVerifiedUser = await AuthService.verifyUserEmail(user._id, token);
+    const isVerifiedUser = await AuthService.verifyUserEmail(token);
     if (isVerifiedUser) {
       // Update user's email verification status
       console.log('Email verified successfully');
@@ -214,112 +203,6 @@ class AuthController {
     }
   }
 
-  async requestPasswordReset(req: Request, res: Response) {
-    const { email } = req.body;
-
-    try {
-      const user = await UserService.findOneByEmail(email);
-      if (!user) {
-        return sendResponse({
-          res,
-          status: StatusCodes.NOT_FOUND,
-          message: 'User not found',
-          success: false,
-        });
-      }
-
-      let OTP = await OTPTokenService.generateOTP(user._id, 'passwordReset');
-      console.log({ OTP });
-
-      AuthService.sendOTPService(email, OTP);
-      // return OTP;
-      sendResponse({
-        res,
-        status: StatusCodes.OK,
-        message: 'OTP sent successfully',
-        success: true,
-      });
-    } catch (error) {
-      console.error(error);
-      sendResponse({
-        res,
-        status: StatusCodes.INTERNAL_SERVER_ERROR,
-        message: 'Failed to send OTP code',
-        success: false,
-      });
-    }
-  }
-  async verifyPasswordReset(req: Request, res: Response) {
-    const { otp } = req.body;
-
-    const isVerified = await AuthService.verifyPasswordReset(otp);
-    if (isVerified) {
-      console.log('OTP verified successfully');
-      sendResponse({
-        res,
-        status: StatusCodes.OK,
-        message: 'OTP verified successfully',
-        success: true,
-      });
-    } else {
-      console.log('Invalid or expired token');
-      sendResponse({
-        res,
-        status: StatusCodes.BAD_REQUEST,
-        message: 'Invalid or expired token',
-        success: false,
-      });
-    }
-  }
-
-  async resetPassword(req: Request, res: Response) {
-    const { password: newPassword, otp } = req.body;
-    try {
-      const otpToken = await AuthService.verifyPasswordReset(otp);
-      console.log({ otpToken });
-      if (!otpToken) {
-        return sendResponse({
-          res,
-          status: StatusCodes.BAD_REQUEST,
-          message: 'Invalid or expired token',
-          success: false,
-        });
-      }
-
-      const user = UserService.changePassword(otpToken.userId, newPassword);
-      if (!user) {
-        // return res
-        //   .status(404)
-        //   .send({ error: "No user registered with that email or phone number" });
-        return sendResponse({
-          res,
-          status: StatusCodes.NOT_FOUND,
-          message: 'No such registered user',
-          success: false,
-        });
-      }
-
-      // Delete the otpToken
-      await OTPTokenService.deleteOTP(otpToken.token, 'passwordReset');
-
-      sendResponse({
-        res,
-        status: StatusCodes.OK,
-        message: 'Password reset successfully',
-        success: true,
-        data: user,
-      });
-    } catch (error) {
-      console.error(error);
-
-      sendResponse({
-        res,
-        status: StatusCodes.INTERNAL_SERVER_ERROR,
-        message: 'An error occurred while resetting password',
-        success: false,
-      });
-    }
-  }
   logout(req: Request, res: Response) {
     // Clear the session token cookie to log the user out
     res.clearCookie(COOKIE_TOKEN);
