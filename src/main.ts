@@ -23,6 +23,7 @@ import {
   env,
 } from './config/env.config';
 import { corsOptions } from './config';
+import { setupEvents } from './events';
 
 /* Sendgrid implementation */
 sgMail.setApiKey(SENDGRID_API_KEY);
@@ -74,6 +75,7 @@ app.get('/test', (req, res) => {
 
 const httpServer = createServer(app);
 
+setupEvents();
 routes(app);
 
 connectToDatabase(() => {
