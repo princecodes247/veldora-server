@@ -3,8 +3,8 @@ import { any, object, string, TypeOf } from 'zod';
 
 export const changePasswordSchema = object({
   body: object({
-    id: string({
-      required_error: 'id is required',
+    otp: string({
+      required_error: 'ID is required',
     }),
     password: string({
       required_error: 'Password is required',
@@ -12,15 +12,14 @@ export const changePasswordSchema = object({
     passwordConfirmation: string({
       required_error: 'passwordConfirmation is required',
     }),
-  })
-    .refine((data) => data.password === data.passwordConfirmation, {
-      message: 'Passwords do not match',
-      path: ['passwordConfirmation'],
-    })
-    .refine((data) => mongoose.isValidObjectId(data.id), {
-      message: 'Invalid ID',
-      path: ['id'],
-    }),
+  }).refine((data) => data.password === data.passwordConfirmation, {
+    message: 'Passwords do not match',
+    path: ['passwordConfirmation'],
+  }),
+  // .refine((data) => mongoose.isValidObjectId(data.id), {
+  //   message: 'Invalid ID',
+  //   path: ['id'],
+  // }),
 });
 
 export type ChangePasswordInput = Omit<
