@@ -31,7 +31,6 @@ sgMail.setApiKey(SENDGRID_API_KEY);
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
 // app.use(isWhitelisted);
-app.use(cors());
 
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ extended: false }));

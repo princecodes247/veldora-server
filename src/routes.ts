@@ -24,8 +24,8 @@ openRouter.use('/buckets', OpenBucketRouter);
 open2Router.use('/buckets', OpenBucketRouter);
 
 const routes = (app: Application) => {
-  app.use('/v1/g', openRouter);
-  app.use('/api/v1/g', open2Router);
+  app.use('/v1/g', cors(), openRouter);
+  app.use('/api/v1/g', cors(), open2Router);
 
   app.use('/api/v1', cors(corsOptions), router);
   // app.use('/item-image', express.static(path.join(__dirname, '..', 'tmp')));
