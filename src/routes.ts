@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import path from 'path';
 import { Application, Router } from 'express';
 import { sendResponse } from './utils/send-response.util';
@@ -8,6 +9,7 @@ import { BucketRouter, OpenBucketRouter } from './modules/bucket';
 import { UserRouter } from './modules/user';
 import { SubmissionRouter } from './modules/submission';
 import hasAccessToken from './modules/bucket/guards/bucket-access-token.guard';
+import { corsOptions } from './config';
 
 const router: Router = Router();
 const openRouter: Router = Router();
@@ -25,7 +27,7 @@ const routes = (app: Application) => {
   app.use('/v1/g', openRouter);
   app.use('/api/v1/g', open2Router);
 
-  app.use('/api/v1', router);
+  app.use('/api/v1', cors(corsOptions), router);
   // app.use('/item-image', express.static(path.join(__dirname, '..', 'tmp')));
 
   // Error handler for 404 - Page Not Found
