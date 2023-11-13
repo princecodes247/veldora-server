@@ -6,8 +6,10 @@ import {
   isUserBucketWithSlug,
 } from '../bucket/guards/user-bucket.guard';
 import { isAuth } from '../auth/guards/auth.guard';
+import hasAccessToken from '../bucket/guards/bucket-access-token.guard';
 
 const SubmissionRouter: Router = express.Router();
+export const OpenSubmissionRouter = express.Router();
 
 SubmissionRouter.get(
   '/',
@@ -32,5 +34,16 @@ SubmissionRouter.post(
   isAuth(),
   SubmissionController.deleteSubmission,
 );
+
+OpenSubmissionRouter.route('/:id/update')
+  .all(hasAccessToken())
+  .post(SubmissionController.externalUpdateSubmission)
+  .patch(SubmissionController.externalUpdateSubmission);
+
+OpenSubmissionRouter.route('/:id/delete')
+  .all(hasAccessToken())
+  .post(SubmissionController.externalRemoveSubmissions)
+  .patch(SubmissionController.externalRemoveSubmissions)
+  .delete(SubmissionController.externalRemoveSubmissions);
 
 export default SubmissionRouter;

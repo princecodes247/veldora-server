@@ -98,6 +98,25 @@ class SubmissionService {
     return submissionStats[0];
   }
 
+  async externalUpdateSubmission({
+    id,
+    bucket,
+    updateData,
+  }: {
+    id: string;
+    bucket: string;
+    updateData: SubmissionDocument;
+  }) {
+    const submission = await SubmissionModel.findOne({ _id: id, bucket });
+
+    submission.data = { ...submission.data, updateData };
+    await submission.save();
+    return submission;
+  }
+  async externalRemoveSubmissions(ids: string[], bucket: string) {
+    return await SubmissionModel.deleteMany({ _id: { $in: ids }, bucket });
+  }
+
   async removeSubmissions(ids) {
     return await SubmissionModel.deleteMany({ _id: { $in: ids } });
   }

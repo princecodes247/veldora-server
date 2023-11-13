@@ -68,6 +68,68 @@ class SubmissionController {
     }
   }
 
+  async externalUpdateSubmission(
+    req: RequestWithBucket,
+    res: Response,
+  ): Promise<void> {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const bucket = req.bucket.id;
+      const submissions = await SubmissionService.externalUpdateSubmission({
+        id,
+        bucket,
+        updateData,
+      });
+      return sendResponse({
+        res,
+        message: 'Submissions updated',
+        success: true,
+        data: submissions,
+        status: 200,
+      });
+    } catch (error) {
+      console.log({ error });
+      return sendResponse({
+        res,
+        message: 'Internal Server Error',
+        success: false,
+        error,
+        status: 500,
+      });
+    }
+  }
+
+  async externalRemoveSubmissions(
+    req: RequestWithBucket,
+    res: Response,
+  ): Promise<void> {
+    try {
+      const { id, ids: idsString } = req.params;
+      const ids = idsString.split(',');
+      const bucket = req.bucket.id;
+      const submissions = await SubmissionService.externalRemoveSubmissions(
+        ids ?? [id],
+        bucket,
+      );
+      return sendResponse({
+        res,
+        message: 'Submissions deleted',
+        success: true,
+        data: submissions,
+        status: 200,
+      });
+    } catch (error) {
+      console.log({ error });
+      return sendResponse({
+        res,
+        message: 'Internal Server Error',
+        success: false,
+        error,
+        status: 500,
+      });
+    }
+  }
   async deleteSubmission(req: Request, res: Response): Promise<void> {
     try {
       const { ids } = req.body;
