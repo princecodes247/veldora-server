@@ -64,6 +64,9 @@ export function isUserBucketWithSlug(
       const payload = await BucketService.findOneBySlug(slug);
 
       console.log({ slug, payload });
+      if (!payload) {
+        throw new Error('No such bucket');
+      }
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       if (
@@ -76,7 +79,7 @@ export function isUserBucketWithSlug(
       next();
     } catch (error) {
       console.log({ error });
-      return res.status(401).json({ message: 'Unauthorized: Error' });
+      return res.status(401).json({ message: error.message });
     }
   };
 }
