@@ -4,7 +4,7 @@ export const isAuth = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       let userID: string;
-      console.log({ session: req.session });
+
       if (req.session.isAuthenticated) {
         userID = req.session.user._id.toString();
       } else {

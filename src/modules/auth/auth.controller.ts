@@ -18,6 +18,7 @@ class AuthController {
         signInDto.password,
       );
       if (!user) {
+        console.log({ user });
         sendResponse({
           res,
           message: 'Unauthorized: Invalid username or password',

@@ -51,7 +51,7 @@ export const BucketStructureItemSchema = new Schema({
   },
 });
 
-export const BucketSchema = new Schema<IBucket>({
+export const BucketSchema = new Schema({
   name: { type: String, required: true },
   slug: { type: String, slug: ['title', 'subtitle'], unique: true },
   views: [
@@ -73,10 +73,11 @@ export const BucketSchema = new Schema<IBucket>({
   },
   structure: [BucketStructureItemSchema],
   customRedirect: { type: String },
-  accessToken: { type: String, default: '' },
+  // accessToken: { type: String, default: '' },
+  accessToken: { type: Types.ObjectId, ref: 'AccessToken', required: true },
   publicKey: { type: String, default: '' },
-  owner: { type: String, required: true },
-  // owner: { type: 'ObjectId', ref: 'User', required: true },
+  // owner: { type: String, required: true },
+  owner: { type: Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -91,7 +92,7 @@ BucketSchema.pre('save', async function (next) {
 
   // If the slug is already taken, append a unique ID using shortid
   if (existingDoc) {
-    const uniqueId = await generateSlug();
+    const uniqueId = generateSlug();
     console.log({ uniqueId });
     doc.slug = `${slug}-${uniqueId}`;
   } else {
