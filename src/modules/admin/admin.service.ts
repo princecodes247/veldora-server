@@ -1,7 +1,3 @@
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationDto } from './dto/pagination.dto';
-import UserModel, { IUser } from './models/user.model';
 import { BucketService } from '../bucket';
 import { UserService } from '../user';
 import { SubmissionService } from '../submission';

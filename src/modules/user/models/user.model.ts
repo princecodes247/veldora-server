@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import mongoose, { Document, Schema } from 'mongoose';
 import generateSlug from '../../../utils/generate-slug.util';
+import { UserLevels } from '../user.type';
 enum UserStatus {
   ACTIVE = 'active',
   PENDING = 'pending',
@@ -14,6 +15,7 @@ export interface BaseUser {
   email_verified: boolean;
   last_login_at: Date;
   login_count: number;
+  user_type: UserLevels;
   status: UserStatus;
   updated_at: Date;
   created_at: Date;
@@ -39,10 +41,16 @@ const UserSchema = new Schema(
       type: Number,
       default: 0,
     },
+
+    user_type: {
+      type: String,
+      enum: Object.values(UserLevels),
+      default: UserLevels.USER,
+    },
     status: {
       type: String,
       enum: Object.values(UserStatus),
-      default: 'pending',
+      default: UserStatus.PENDING,
     },
 
     metadata: {

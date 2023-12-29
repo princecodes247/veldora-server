@@ -10,6 +10,7 @@ import { UserRouter } from './modules/user';
 import { SubmissionRouter } from './modules/submission';
 import hasAccessToken from './modules/bucket/guards/bucket-access-token.guard';
 import { corsOptions } from './config';
+import { AdminRouter } from './modules/admin';
 
 const router: Router = Router();
 const openRouter: Router = Router();
@@ -19,6 +20,8 @@ router.use('/auth', AuthRouter);
 router.use('/buckets', BucketRouter);
 router.use('/users', UserRouter);
 router.use('/submissions', SubmissionRouter);
+// ADMIN
+router.use('/admin', AdminRouter);
 
 openRouter.use('/buckets', OpenBucketRouter);
 open2Router.use('/buckets', OpenBucketRouter);
