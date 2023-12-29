@@ -8,6 +8,15 @@ class SubmissionService {
     return await submission.save();
   }
 
+  async countSubmissions(): Promise<number> {
+    try {
+      const total = await SubmissionModel.countDocuments();
+      return total;
+    } catch (error) {
+      return -1;
+    }
+  }
+
   async findAllSubmissions({
     limit = 10,
     page = 1,

@@ -19,6 +19,15 @@ class UserService {
     return { data: users, total };
   }
 
+  async countUsers(): Promise<number> {
+    try {
+      const total = await UserModel.countDocuments();
+      return total;
+    } catch (error) {
+      return -1;
+    }
+  }
+
   async findOne(id: string): Promise<IUser | null> {
     try {
       return await UserModel.findById(id).exec();
