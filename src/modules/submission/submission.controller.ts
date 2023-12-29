@@ -68,6 +68,44 @@ class SubmissionController {
     }
   }
 
+  async externalGetSubmission(
+    req: RequestWithBucket,
+    res: Response,
+  ): Promise<void> {
+    try {
+      const { id } = req.params;
+      const bucket = req.bucket._id;
+      const submission = await SubmissionService.getSubmission({
+        id,
+        bucket,
+      });
+
+      if (!submission) {
+        return sendResponse({
+          res,
+          message: 'You are not authorised or submission does not exist',
+          success: false,
+          status: 404,
+        });
+      }
+      return sendResponse({
+        res,
+        message: 'Submission found',
+        success: true,
+        data: submission,
+        status: 200,
+      });
+    } catch (error) {
+      console.log({ error });
+      return sendResponse({
+        res,
+        message: 'Internal Server Error',
+        success: false,
+        error,
+        status: 500,
+      });
+    }
+  }
   async externalUpdateSubmission(
     req: RequestWithBucket,
     res: Response,

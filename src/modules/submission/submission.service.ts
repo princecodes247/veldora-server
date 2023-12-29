@@ -52,6 +52,15 @@ class SubmissionService {
     };
   }
 
+  async getSubmission({ id, bucket }) {
+    const submission = await SubmissionModel.findOne({
+      _id: id,
+      bucket,
+    });
+
+    return submission;
+  }
+
   async getBucketStats(bucketId) {
     const submissionStats = await SubmissionModel.aggregate([
       { $match: { bucket: bucketId } },

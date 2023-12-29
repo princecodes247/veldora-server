@@ -35,15 +35,18 @@ SubmissionRouter.post(
   SubmissionController.deleteSubmission,
 );
 
+OpenSubmissionRouter.route('/:id')
+  .all(hasAccessToken())
+  .get(SubmissionController.externalGetSubmission);
+
 OpenSubmissionRouter.route('/:id/update')
   .all(hasAccessToken())
   .post(SubmissionController.externalUpdateSubmission)
-  .patch(SubmissionController.externalUpdateSubmission);
+  .put(SubmissionController.externalUpdateSubmission);
 
 OpenSubmissionRouter.route('/:id/delete')
   .all(hasAccessToken())
   .post(SubmissionController.externalRemoveSubmissions)
-  .patch(SubmissionController.externalRemoveSubmissions)
   .delete(SubmissionController.externalRemoveSubmissions);
 
 export default SubmissionRouter;
