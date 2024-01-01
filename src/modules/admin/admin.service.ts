@@ -4,7 +4,7 @@ import { SubmissionService } from '../submission';
 
 class AdminService {
   async getStats() {
-    const data = Promise.all([
+    const data = await Promise.all([
       UserService.countUsers(),
       BucketService.countBuckets(),
       SubmissionService.countSubmissions(),

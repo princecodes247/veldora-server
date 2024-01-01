@@ -7,6 +7,7 @@ export interface RequestWithUser extends Request {
 
 export interface RequestWithAuth extends Request {
   user: {
+    _id: string;
     userID: string;
     email: string;
     phone: string;
