@@ -178,7 +178,7 @@ class BucketService {
       const total = await this.bucketModel.countDocuments();
       return total;
     } catch (error) {
-      return -1;
+      throw new Error('Unable to count buckets');
     }
   }
 

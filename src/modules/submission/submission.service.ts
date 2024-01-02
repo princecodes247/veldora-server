@@ -13,7 +13,7 @@ class SubmissionService {
       const total = await SubmissionModel.countDocuments();
       return total;
     } catch (error) {
-      return -1;
+      throw new Error('Unable to count submissions');
     }
   }
 

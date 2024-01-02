@@ -24,7 +24,7 @@ class UserService {
       const total = await UserModel.countDocuments();
       return total;
     } catch (error) {
-      return -1;
+      throw new Error('Unable to count users');
     }
   }
 
