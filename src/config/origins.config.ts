@@ -6,7 +6,8 @@ const allowedOrigins: string[] = [
   'http://127.0.0.1:3000',
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://veldora.vercel.com',
+  'https://veldora.vercel.app',
+  'https://veldora-admin.vercel.app'
 ];
 
 export default allowedOrigins;
