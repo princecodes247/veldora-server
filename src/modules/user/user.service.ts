@@ -19,6 +19,15 @@ class UserService {
     return { data: users, total };
   }
 
+  async countUsers(): Promise<number> {
+    try {
+      const total = await UserModel.countDocuments();
+      return total;
+    } catch (error) {
+      throw new Error('Unable to count users');
+    }
+  }
+
   async findOne(id: string): Promise<IUser | null> {
     try {
       return await UserModel.findById(id).exec();
@@ -59,11 +68,10 @@ class UserService {
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<IUser | null> {
-    // You should implement your update logic here based on your requirements.
-    // You may want to use UserModel.findByIdAndUpdate() or similar methods.
-    // let data = await this.passageService.update(id, updateUserDto);
-
-    return null;
+    delete updateUserDto.password;
+    return await UserModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    });
   }
 
   async remove(id: string): Promise<void> {

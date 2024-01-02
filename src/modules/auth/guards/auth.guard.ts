@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { UserLevels } from '../../user/user.type';
 
-export const isAuth = () => {
+export const isAuth = (requiredLevel: UserLevels = UserLevels.USER) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       let userID: string;
@@ -18,6 +19,13 @@ export const isAuth = () => {
         // console.log({ userID });
         // if (!userID) {
         // }
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+      }
+      if (
+        requiredLevel === UserLevels.ADMIN &&
+        req.session.user.user_type !== UserLevels.ADMIN
+      ) {
         res.status(401).json({ message: 'Unauthorized' });
         return;
       }
