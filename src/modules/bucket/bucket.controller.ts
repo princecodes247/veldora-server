@@ -31,6 +31,7 @@ class BucketController {
         res,
         message: 'Could not create Bucket',
         success: false,
+        error: error,
         status: StatusCodes.INTERNAL_SERVER_ERROR,
       });
     }
