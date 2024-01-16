@@ -1,6 +1,6 @@
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
-import { Model, Document } from 'mongoose';
+import { Model, Document, Types } from 'mongoose';
 import BucketModel, { IBucket } from './models/bucket.model';
 
 import { SubmissionService } from '../submission';
@@ -189,38 +189,45 @@ class BucketService {
     const { page, limit = 1 } = pagination;
     const skip = page ? (page - 1) * limit : 0;
     const total = await this.bucketModel.countDocuments({ owner });
-    const buckets = await this.bucketModel.aggregate([
-      {
-        $match: {
-          owner,
-        },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
-      },
-      {
-        $lookup: {
-          from: 'submissions',
-          let: { bucketId: '$_id' },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: [{ $toObjectId: '$bucket' }, '$$bucketId'] },
+    const buckets = await this.bucketModel
+      // .find({ owner });
+      .aggregate([
+        {
+          $match: {
+            $or: [
+              {
+                owner: new Types.ObjectId(owner),
               },
-            },
-          ],
-          as: 'submissionsCount',
+              { owner },
+            ],
+          },
         },
-      },
-      {
-        $addFields: {
-          submissionsCount: { $size: '$submissionsCount' },
+        {
+          $skip: skip,
         },
-      },
-    ]);
+        {
+          $limit: limit,
+        },
+        {
+          $lookup: {
+            from: 'submissions',
+            let: { bucketId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: [{ $toObjectId: '$bucket' }, '$$bucketId'] },
+                },
+              },
+            ],
+            as: 'submissionsCount',
+          },
+        },
+        {
+          $addFields: {
+            submissionsCount: { $size: '$submissionsCount' },
+          },
+        },
+      ]);
 
     const totalPages = Math.ceil(total / limit);
 
